@@ -1,0 +1,8 @@
+# VoiceGuard - AI Voice Detection
+# https://voice-detection-nu.vercel.app
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://voice-detection-nu.vercel.app/sitemap.xml
