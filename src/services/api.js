@@ -6,13 +6,18 @@
 import { MAX_FILE_SIZE_BYTES, MAX_FILE_SIZE_MB } from '../constants';
 
 const API_CONFIG = {
-    BASE_URL: import.meta.env.VITE_API_BASE_URL || "https://shivam-2211-voice-detection-api.hf.space/api/voice-detection",
+    BASE_URL: import.meta.env.VITE_API_BASE_URL,
     API_KEY: import.meta.env.VITE_API_KEY,
 };
 
-// Warn in development if API key is missing
-if (!API_CONFIG.API_KEY && import.meta.env.DEV) {
-    console.warn('[VoiceGuard] Missing VITE_API_KEY environment variable. Create a .env.local file with your API key.');
+// Warn in development if required env vars are missing
+if (import.meta.env.DEV) {
+    if (!API_CONFIG.API_KEY) {
+        console.warn('[VoiceGuard] Missing VITE_API_KEY. Create .env.local with your API key.');
+    }
+    if (!API_CONFIG.BASE_URL) {
+        console.warn('[VoiceGuard] Missing VITE_API_BASE_URL. Create .env.local with your API endpoint.');
+    }
 }
 
 /**
