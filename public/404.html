@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" style="color-scheme: dark;">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#000000" />
+  <title>404 - Page Not Found | VoiceGuard</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Rajdhani', sans-serif;
+      background-color: #000;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+      background-size: 50px 50px;
+    }
+    
+    .error-code {
+      font-size: 8rem;
+      font-weight: 700;
+      line-height: 1;
+      color: #ccff00;
+      text-shadow: 0 0 40px rgba(204, 255, 0, 0.3);
+    }
+    
+    .error-title {
+      font-size: 2rem;
+      font-weight: 600;
+      margin: 20px 0 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    
+    .error-message {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      color: #888;
+      max-width: 400px;
+      margin-bottom: 40px;
+    }
+    
+    .home-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #ccff00;
+      color: #000;
+      padding: 14px 28px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .home-link:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(204, 255, 0, 0.4);
+    }
+    
+    .home-link:focus {
+      outline: 3px solid rgba(204, 255, 0, 0.5);
+      outline-offset: 3px;
+    }
+    
+    .status-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #0a0a0a;
+      border-top: 1px solid #333;
+      padding: 10px 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: #666;
+      display: flex;
+      justify-content: space-between;
+    }
+    
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      background: #ff3333;
+      border-radius: 50%;
+    }
+  </style>
+</head>
+<body>
+  <div class="error-code">404</div>
+  <h1 class="error-title">Page Not Found</h1>
+  <p class="error-message">
+    The requested resource could not be located. 
+    It may have been moved or deleted.
+  </p>
+  <a href="/" class="home-link">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+      <polyline points="9 22 9 12 15 12 15 22"></polyline>
+    </svg>
+    Return Home
+  </a>
+  
+  <div class="status-bar">
+    <div class="status-indicator">
+      <span class="status-dot"></span>
+      <span>ERROR_404</span>
+    </div>
+    <span>VOICEGUARD // V1.0.0</span>
+  </div>
+</body>
+</html>
