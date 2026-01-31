@@ -1,0 +1,162 @@
+/* Tech Noir Component Styles */
+
+.hidden-input {
+  display: none !important;
+}
+
+
+/* --- Sensor Plate (Drag Zone) --- */
+.drop-zone {
+  width: 100%;
+  height: 320px;
+  background:
+    linear-gradient(rgba(10, 10, 10, 0.9), rgba(10, 10, 10, 0.9)),
+    repeating-linear-gradient(0deg, transparent, transparent 1px, var(--color-grid) 1px, var(--color-grid) 2px);
+  background-size: 100% 100%, 100% 4px;
+  border: 1px solid var(--color-border);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.drop-zone:hover {
+  border-color: var(--color-accent-primary);
+  box-shadow: 0 0 20px -10px var(--color-accent-primary);
+}
+
+.drop-zone.dragging {
+  border-color: var(--color-accent-secondary);
+  background: rgba(0, 240, 255, 0.05);
+}
+
+/* Scanner Animation */
+.scanner-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--color-accent-primary);
+  box-shadow: 0 0 10px var(--color-accent-primary);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.drop-zone:hover .scanner-line,
+.drop-zone.dragging .scanner-line {
+  opacity: 1;
+  animation: scan 2s linear infinite;
+}
+
+@keyframes scan {
+  0% {
+    top: 0;
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  90% {
+    opacity: 1;
+  }
+
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
+}
+
+/* Crosshairs */
+.crosshair {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--color-text-muted);
+  transition: all 0.3s;
+}
+
+.tl {
+  top: 10px;
+  left: 10px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.tr {
+  top: 10px;
+  right: 10px;
+  border-left: none;
+  border-bottom: none;
+}
+
+.bl {
+  bottom: 10px;
+  left: 10px;
+  border-right: none;
+  border-top: none;
+}
+
+.br {
+  bottom: 10px;
+  right: 10px;
+  border-left: none;
+  border-top: none;
+}
+
+.drop-zone:hover .crosshair {
+  border-color: var(--color-accent-primary);
+  width: 30px;
+  height: 30px;
+}
+
+.drop-text-primary {
+  font-family: var(--font-main);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 1.5rem;
+  color: var(--color-text-primary);
+  z-index: 2;
+}
+
+.drop-text-secondary {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-top: 8px;
+  z-index: 2;
+}
+
+/* --- Language Selector (Tech Dropdown) --- */
+.lang-trigger {
+  font-family: var(--font-mono) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 1px solid var(--color-border) !important;
+  background: var(--color-bg-panel) !important;
+  border-radius: 0 !important;
+  /* Squared corners */
+}
+
+.lang-trigger:hover {
+  border-color: var(--color-text-primary) !important;
+}
+
+.lang-dropdown {
+  background: var(--color-bg-deep) !important;
+  border: 1px solid var(--color-accent-primary) !important;
+  border-radius: 0 !important;
+}
+
+.lang-option:hover {
+  background: var(--color-accent-primary) !important;
+  color: #000 !important;
+  /* High contrast on hover */
+}

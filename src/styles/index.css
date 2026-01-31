@@ -1,0 +1,127 @@
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+
+:root {
+  /* Font Family - Technical & Code */
+  --font-main: 'Rajdhani', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Colors - Tech Noir / Brutalist */
+  --color-bg-deep: #050505;
+  --color-bg-panel: #0A0A0A;
+  --color-border: #AAAAAA;
+  --color-grid: #1A1A1A;
+
+  --color-text-primary: #E5E5E5;
+  --color-text-secondary: #888888;
+  --color-text-muted: #555555;
+
+  /* Signals */
+  --color-accent-primary: #CCFF00;
+  /* Acid Green - The main signal */
+  --color-accent-secondary: #00F0FF;
+  /* Cyan - Data */
+
+  /* Status Colors */
+  --color-success: #CCFF00;
+  --color-danger: #FF2A00;
+  /* International Orange */
+  --color-warning: #FFCC00;
+
+  /* Layout */
+  --border-width: 1px;
+  --panel-spacing: 24px;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-main);
+  background-color: var(--color-bg-deep);
+  color: var(--color-text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+
+  /* Grid Background */
+  background-image:
+    linear-gradient(var(--color-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-grid) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Utilities */
+.text-mono {
+  font-family: var(--font-mono);
+}
+
+.uppercase {
+  text-transform: uppercase;
+}
+
+.tracking-wide {
+  letter-spacing: 0.1em;
+}
+
+/* Brutalist Container */
+.bento-container {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 16px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.panel {
+  background: var(--color-bg-panel);
+  border: 1px solid var(--color-border);
+  position: relative;
+}
+
+/* Corner markings */
+.panel::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  width: 8px;
+  height: 8px;
+  border-top: 2px solid var(--color-text-muted);
+  border-left: 2px solid var(--color-text-muted);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-deep);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent-primary);
+}
+/* --- MOVED FROM COMPONENTS.CSS --- */
+.hidden-input { display: none !important; }
+.drop-zone {
+  width: 100%; height: 320px;
+  background: linear-gradient(rgba(10,10,10,0.9), rgba(10,10,10,0.9)), repeating-linear-gradient(0deg, transparent, transparent 1px, var(--color-grid) 1px, var(--color-grid) 2px);
+  background-size: 100% 100%, 100% 4px;
+  border: 1px solid var(--color-border);
+  position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; transition: all 0.2s ease;
+}
+.drop-zone:hover { border-color: var(--color-accent-primary); box-shadow: 0 0 20px -10px var(--color-accent-primary); }
+.scanner-line {
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: var(--color-accent-primary); box-shadow: 0 0 10px var(--color-accent-primary);
+  opacity: 0; pointer-events: none;
+}
+.drop-zone:hover .scanner-line { opacity: 1; animation: scan 2s linear infinite; }
+@keyframes scan { 0% { top: 0; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+.drop-text-primary { font-family: var(--font-main); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; font-size: 1.5rem; color: var(--color-text-primary); z-index: 2; }
+.drop-text-secondary { font-family: var(--font-mono); font-size: 0.75rem; color: var(--color-text-muted); margin-top: 8px; z-index: 2; }
+
