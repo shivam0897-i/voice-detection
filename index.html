@@ -1,12 +1,37 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" style="color-scheme: dark;">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>temp_project</title>
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="AI-powered voice detection to identify synthetic vs human audio across Tamil, Hindi, Telugu, Malayalam, and English languages." />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="VoiceGuard - AI Voice Detection" />
+    <meta property="og:description" content="Detect AI-generated voices vs human speech. Protect against voice cloning fraud." />
+    <meta property="og:image" content="/og-image.svg" />
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="VoiceGuard - AI Voice Detection" />
+    <meta name="twitter:description" content="Detect AI-generated voices vs human speech. Protect against voice cloning fraud." />
+    <meta name="twitter:image" content="/og-image.svg" />
+    
+    <!-- Fonts - Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/icon-192.svg" />
+    
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>VoiceGuard - AI Voice Detection</title>
   </head>
   <body>
+    <!-- Skip Link for Accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

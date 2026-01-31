@@ -3,9 +3,11 @@
  * Handles communication with the AI Voice Detection backend.
  */
 
+import { MAX_FILE_SIZE_BYTES, MAX_FILE_SIZE_MB } from '../constants';
+
 const API_CONFIG = {
-    BASE_URL: "https://shivam-2211-voice-detection-api.hf.space/api/voice-detection",
-    API_KEY: "sk_test_voice_detection_2024", // Note: In production, this should be an env variable
+    BASE_URL: import.meta.env.VITE_API_BASE_URL || "https://shivam-2211-voice-detection-api.hf.space/api/voice-detection",
+    API_KEY: import.meta.env.VITE_API_KEY || "sk_test_voice_detection_2024", // Fallback for development only
 };
 
 /**
@@ -36,6 +38,11 @@ export async function fileToBase64(file) {
  */
 export async function detectVoice(audioFile, language = "English") {
     try {
+        // 0. Validate file size
+        if (audioFile.size > MAX_FILE_SIZE_BYTES) {
+            throw new Error(`File too large. Maximum size is ${MAX_FILE_SIZE_MB}MB.`);
+        }
+
         // 1. Get file format
         let audioFormat = audioFile.name.split('.').pop().toLowerCase();
 
@@ -68,7 +75,7 @@ export async function detectVoice(audioFile, language = "English") {
         return data;
 
     } catch (error) {
-        console.error("Voice Detection Error:", error);
+        // Re-throw with better message for UI
         throw error;
     }
 }

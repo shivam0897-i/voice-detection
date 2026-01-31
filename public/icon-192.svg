@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <defs>
+    <linearGradient id="acidGlow192" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ccff00;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#b8e600;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#88cc00;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="cyanGlow" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#00f0ff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00b8cc;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow192">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="192" height="192" fill="#000000"/>
+  
+  <!-- Grid pattern -->
+  <g stroke="#ffffff" stroke-opacity="0.05" stroke-width="1">
+    <line x1="0" y1="48" x2="192" y2="48"/>
+    <line x1="0" y1="96" x2="192" y2="96"/>
+    <line x1="0" y1="144" x2="192" y2="144"/>
+    <line x1="48" y1="0" x2="48" y2="192"/>
+    <line x1="96" y1="0" x2="96" y2="192"/>
+    <line x1="144" y1="0" x2="144" y2="192"/>
+  </g>
+  
+  <!-- Border frame -->
+  <rect x="8" y="8" width="176" height="176" fill="none" stroke="#ffffff" stroke-width="2"/>
+  
+  <!-- Corner accents -->
+  <rect x="8" y="8" width="24" height="3" fill="#ffffff"/>
+  <rect x="8" y="8" width="3" height="24" fill="#ffffff"/>
+  <rect x="160" y="8" width="24" height="3" fill="#ffffff"/>
+  <rect x="181" y="8" width="3" height="24" fill="#ffffff"/>
+  <rect x="8" y="181" width="24" height="3" fill="#ffffff"/>
+  <rect x="8" y="160" width="3" height="24" fill="#ffffff"/>
+  <rect x="160" y="181" width="24" height="3" fill="#ffffff"/>
+  <rect x="181" y="160" width="3" height="24" fill="#ffffff"/>
+  
+  <!-- Waveform visualization - representing audio analysis -->
+  <g filter="url(#glow192)">
+    <rect x="32" y="100" width="8" height="16" fill="url(#acidGlow192)"/>
+    <rect x="44" y="76" width="8" height="64" fill="url(#acidGlow192)"/>
+    <rect x="56" y="56" width="8" height="104" fill="url(#acidGlow192)"/>
+    <rect x="68" y="68" width="8" height="80" fill="url(#acidGlow192)"/>
+    <rect x="80" y="88" width="8" height="40" fill="url(#acidGlow192)"/>
+    <rect x="92" y="48" width="8" height="120" fill="url(#acidGlow192)"/>
+    <rect x="104" y="64" width="8" height="88" fill="url(#acidGlow192)"/>
+    <rect x="116" y="84" width="8" height="48" fill="url(#acidGlow192)"/>
+    <rect x="128" y="60" width="8" height="96" fill="url(#acidGlow192)"/>
+    <rect x="140" y="80" width="8" height="56" fill="url(#acidGlow192)"/>
+    <rect x="152" y="92" width="8" height="32" fill="url(#acidGlow192)"/>
+  </g>
+  
+  <!-- Shield/Guard indicator - represents protection -->
+  <path d="M96 28 L112 36 L112 52 L96 64 L80 52 L80 36 Z" 
+        fill="none" stroke="url(#cyanGlow)" stroke-width="2" filter="url(#glow192)"/>
+  
+  <!-- Detection scan lines -->
+  <line x1="24" y1="168" x2="168" y2="168" stroke="url(#cyanGlow)" stroke-width="1" stroke-dasharray="8,4"/>
+  
+  <!-- Label area -->
+  <text x="96" y="178" font-family="monospace" font-size="10" fill="#666666" text-anchor="middle">VOICE_GUARD</text>
+</svg>
