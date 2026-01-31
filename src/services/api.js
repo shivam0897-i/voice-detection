@@ -7,8 +7,13 @@ import { MAX_FILE_SIZE_BYTES, MAX_FILE_SIZE_MB } from '../constants';
 
 const API_CONFIG = {
     BASE_URL: import.meta.env.VITE_API_BASE_URL || "https://shivam-2211-voice-detection-api.hf.space/api/voice-detection",
-    API_KEY: import.meta.env.VITE_API_KEY || "sk_test_voice_detection_2024", // Fallback for development only
+    API_KEY: import.meta.env.VITE_API_KEY,
 };
+
+// Warn in development if API key is missing
+if (!API_CONFIG.API_KEY && import.meta.env.DEV) {
+    console.warn('[VoiceGuard] Missing VITE_API_KEY environment variable. Create a .env.local file with your API key.');
+}
 
 /**
  * Converts a File object to a Base64 string (without the data URL prefix).
