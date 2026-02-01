@@ -152,6 +152,36 @@ const ResultCard = ({ result, loading, error, responseTime, onRetry }) => {
             </p>
           </div>
 
+          {/* Forensic Metrics */}
+          {result.forensic_metrics && (
+             <div style={{ marginTop: '40px', borderTop: '1px dashed #333', paddingTop: '30px' }}>
+               <h4 style={{ margin: '0 0 20px 0', fontFamily: 'var(--font-mono)', color: '#888', fontSize: '0.9rem', textTransform: 'uppercase' }}>Forensic Telemetry</h4>
+               
+               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                  {Object.entries(result.forensic_metrics).map(([key, value]) => (
+                    <div key={key}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: '#666', textTransform: 'uppercase' }}>
+                          {key.replace('_', ' ')}
+                        </span>
+                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: '#AAA' }}>
+                          {value.toFixed(1)}
+                        </span>
+                      </div>
+                      <div style={{ height: '4px', background: '#222', width: '100%' }}>
+                        <div style={{ 
+                          height: '100%', 
+                          width: `${Math.min(value, 100)}%`, 
+                          background: value > 50 ? 'var(--color-accent)' : '#444',
+                          borderRight: '1px solid #FFF' // Tech noir marker
+                        }} />
+                      </div>
+                    </div>
+                  ))}
+               </div>
+             </div>
+          )}
+
         </div>
       </div>
     </div>
