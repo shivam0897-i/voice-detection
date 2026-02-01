@@ -18,6 +18,13 @@ if (import.meta.env.DEV) {
     if (!API_CONFIG.BASE_URL) {
         console.warn('[VoiceGuard] Missing VITE_API_BASE_URL. Create .env.local with your API endpoint.');
     }
+} else {
+    // Debug log for Production to verify environment variables
+    console.log('[VoiceGuard] Production Config Loaded');
+    console.log('[VoiceGuard] API Base URL:', API_CONFIG.BASE_URL);
+    // Print only last 4 chars of API Key for verification
+    const key = API_CONFIG.API_KEY || '';
+    console.log('[VoiceGuard] API Key Suffix:', key.slice(-4));
 }
 
 /**
