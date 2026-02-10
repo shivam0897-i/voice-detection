@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { AlertTriangle, CheckSquare, Cpu, Clock, RefreshCw } from 'lucide-react';
 import '../styles/components.css';
 
@@ -6,12 +6,12 @@ const ResultCard = ({ result, loading, error, responseTime, onRetry }) => {
   if (loading) {
     return (
       <div style={{ height: '300px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--color-border)', background: 'var(--color-bg-panel)' }}>
-        <div style={{ fontFamily: 'var(--font-mono)', color: 'var(--color-accent)', marginBottom: '16px', fontSize: '1.2rem' }}>ANALYZING…</div>
+        <div style={{ fontFamily: 'var(--font-mono)', color: 'var(--color-accent)', marginBottom: '16px', fontSize: '1.2rem' }}>ANALYZING...</div>
         <div style={{ width: '60%', height: '4px', background: '#333', position: 'relative', overflow: 'hidden' }}>
           <div style={{ width: '100%', height: '100%', background: 'var(--color-accent)', animation: 'scan 1.5s infinite linear', transform: 'translateX(-100%)' }}></div>
         </div>
         <div style={{ marginTop: '20px', fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: '#666' }}>
-          Analyzing audio patterns…
+          Analyzing audio patterns...
         </div>
         <style>{`
           @keyframes scan {
@@ -59,19 +59,25 @@ const ResultCard = ({ result, loading, error, responseTime, onRetry }) => {
 
   if (!result) return null;
 
-  const isFake = result.classification === 'AI_GENERATED';
-  const confidence = result.confidenceScore || 0;
+  const classification = result.classification || 'UNCERTAIN';
+  const isFake = classification === 'AI_GENERATED';
+  const isUncertain = classification === 'UNCERTAIN' || !!result.modelUncertain;
+  const confidence = Number(result.confidenceScore || 0);
   const confidencePercent = (confidence * 100).toFixed(0);
 
-  // Design Logic
-  const color = isFake ? '#FF3333' : '#00FF00'; // Red for Fake, Green for Real
-  const label = isFake ? 'SYNTHETIC_DETECTED' : 'HUMAN_VERIFIED';
-  const icon = isFake ? <Cpu size={64} aria-hidden="true" /> : <CheckSquare size={64} aria-hidden="true" />;
+  // Design logic
+  const color = isFake ? '#FF3333' : isUncertain ? '#eab308' : '#00FF00';
+  const label = isFake ? 'SYNTHETIC_DETECTED' : isUncertain ? 'UNCERTAIN_RESULT' : 'HUMAN_VERIFIED';
+  const icon = isFake
+    ? <Cpu size={64} aria-hidden="true" />
+    : isUncertain
+      ? <AlertTriangle size={64} aria-hidden="true" />
+      : <CheckSquare size={64} aria-hidden="true" />;
 
-  const id = React.useMemo(() => Math.random().toString(36).substr(2, 9).toUpperCase(), [result]);
+  const id = result.session_id ? String(result.session_id).slice(0, 8).toUpperCase() : 'LEGACY';
 
   return (
-    <div 
+    <div
       role="region"
       aria-live="polite"
       aria-label={`Analysis result: ${label}, confidence ${confidencePercent}%`}
@@ -86,7 +92,11 @@ const ResultCard = ({ result, loading, error, responseTime, onRetry }) => {
 
         {/* Left: Verdict Panel */}
         <div style={{
-          background: isFake ? 'rgba(255, 50, 50, 0.1)' : 'rgba(0, 255, 0, 0.1)',
+          background: isFake
+            ? 'rgba(255, 50, 50, 0.1)'
+            : isUncertain
+              ? 'rgba(234, 179, 8, 0.12)'
+              : 'rgba(0, 255, 0, 0.1)',
           padding: '40px',
           display: 'flex',
           flexDirection: 'column',
@@ -97,13 +107,13 @@ const ResultCard = ({ result, loading, error, responseTime, onRetry }) => {
           <div style={{ color: color, marginBottom: '20px' }}>{icon}</div>
           <h2 style={{ color: color, margin: '0', fontSize: '1.8rem', textAlign: 'center', lineHeight: '1.2' }}>{label}</h2>
           <div style={{ marginTop: '20px', fontFamily: 'var(--font-mono)', fontSize: '0.8rem', color: '#888' }}>ID: {id}</div>
-          
+
           {/* Response Time Badge */}
           {responseTime && (
-            <div style={{ 
-              marginTop: '16px', 
-              display: 'flex', 
-              alignItems: 'center', 
+            <div style={{
+              marginTop: '16px',
+              display: 'flex',
+              alignItems: 'center',
               gap: '6px',
               padding: '6px 12px',
               background: 'rgba(204, 255, 0, 0.1)',
@@ -150,13 +160,23 @@ const ResultCard = ({ result, loading, error, responseTime, onRetry }) => {
             <p style={{ fontFamily: 'var(--font-mono)', fontSize: '1rem', lineHeight: '1.6', color: '#EEE', borderLeft: '2px solid #333', paddingLeft: '20px' }}>
               {result.explanation}
             </p>
+            {(result.modelUncertain || result.recommendedAction) && (
+              <div style={{ marginTop: '16px', padding: '12px', border: '1px solid #5a4a1a', background: 'rgba(234, 179, 8, 0.08)' }}>
+                <div style={{ color: '#eab308', fontFamily: 'var(--font-mono)', fontSize: '0.75rem', textTransform: 'uppercase', marginBottom: '8px' }}>
+                  Model uncertainty guidance
+                </div>
+                <div style={{ color: '#d4d4d4', fontFamily: 'var(--font-mono)', fontSize: '0.85rem', lineHeight: '1.5' }}>
+                  {result.recommendedAction || 'Treat this result conservatively and verify caller identity via trusted channels.'}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Forensic Metrics */}
           {result.forensic_metrics && (
              <div style={{ marginTop: '40px', borderTop: '1px dashed #333', paddingTop: '30px' }}>
                <h4 style={{ margin: '0 0 20px 0', fontFamily: 'var(--font-mono)', color: '#888', fontSize: '0.9rem', textTransform: 'uppercase' }}>Forensic Telemetry</h4>
-               
+
                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                   {Object.entries(result.forensic_metrics).map(([key, value]) => (
                     <div key={key}>
@@ -165,15 +185,15 @@ const ResultCard = ({ result, loading, error, responseTime, onRetry }) => {
                           {key.replace('_', ' ')}
                         </span>
                         <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: '#AAA' }}>
-                          {value.toFixed(1)}
+                          {Number(value).toFixed(1)}
                         </span>
                       </div>
                       <div style={{ height: '4px', background: '#222', width: '100%' }}>
-                        <div style={{ 
-                          height: '100%', 
-                          width: `${Math.min(value, 100)}%`, 
-                          background: value > 50 ? 'var(--color-accent)' : '#444',
-                          borderRight: '1px solid #FFF' // Tech noir marker
+                        <div style={{
+                          height: '100%',
+                          width: `${Math.min(Number(value), 100)}%`,
+                          background: Number(value) > 50 ? 'var(--color-accent)' : '#444',
+                          borderRight: '1px solid #FFF'
                         }} />
                       </div>
                     </div>
@@ -189,3 +209,4 @@ const ResultCard = ({ result, loading, error, responseTime, onRetry }) => {
 };
 
 export default ResultCard;
+

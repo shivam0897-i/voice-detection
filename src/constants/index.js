@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Application Constants
  * Centralized configuration for magic numbers and settings
  */
@@ -19,6 +19,13 @@ export const HISTORY_LIMIT = 10;
 // === API ===
 export const API_TIMEOUT_MS = 30000;
 
+
+// === Realtime Session ===
+export const REALTIME_CHUNK_DURATION_SEC = 2.4;
+export const REALTIME_STREAM_INTERVAL_MS = 900;
+export const REALTIME_TIMELINE_LIMIT = 40;
+export const REALTIME_ALERTS_LIMIT = 20;
+
 // === Toast Notifications ===
 export const TOAST_DURATION_MS = 4000;
 export const TOAST_TYPES = {
@@ -27,3 +34,5 @@ export const TOAST_TYPES = {
   WARNING: 'warning',
   INFO: 'info',
 };
+
+

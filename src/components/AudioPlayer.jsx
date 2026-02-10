@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+﻿import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Play, Pause, Volume2, VolumeX, RotateCcw } from 'lucide-react';
 import { WAVEFORM_BARS } from '../constants';
 
@@ -66,7 +66,7 @@ const AudioPlayer = ({ file }) => {
             }
             
             setWaveformData(waveform);
-        } catch (error) {
+        } catch {
             // Fallback to random waveform if analysis fails
             const fallback = [...Array(WAVEFORM_BARS)].map((_, i) => 
                 15 + Math.sin(i * 0.5) * 10 + Math.random() * 10
@@ -252,7 +252,7 @@ const AudioPlayer = ({ file }) => {
                         fontSize: '0.7rem',
                         color: '#666',
                     }}>
-                        Analyzing audio…
+                        Analyzing audioâ€¦
                     </div>
                 )}
                 
@@ -364,3 +364,4 @@ const AudioPlayer = ({ file }) => {
 };
 
 export default AudioPlayer;
+

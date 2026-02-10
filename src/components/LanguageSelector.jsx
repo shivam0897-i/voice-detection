@@ -1,13 +1,13 @@
-import React, { useState, useRef, useEffect } from 'react';
+﻿import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronDown, Globe, Check } from 'lucide-react';
 
 const LANGUAGES = [
     { code: "English", native: "English" },
-    { code: "Tamil", native: "தமிழ்" },
-    { code: "Hindi", native: "हिन्दी" },
-    { code: "Malayalam", native: "മലയാളം" },
-    { code: "Telugu", native: "తెలుగు" }
+    { code: "Tamil", native: "à®¤à®®à®¿à®´à¯" },
+    { code: "Hindi", native: "à¤¹à¤¿à¤¨à¥à¤¦à¥€" },
+    { code: "Malayalam", native: "à´®à´²à´¯à´¾à´³à´‚" },
+    { code: "Telugu", native: "à°¤à±†à°²à±à°—à±" }
 ];
 
 // Inline styles for portal (ensures dark theme works outside React tree)
@@ -142,16 +142,18 @@ const LanguageSelector = ({ selectedLine, onSelect }) => {
             const currentIndex = LANGUAGES.findIndex(l => l.code === (hoveredLang || currentLang));
             
             switch (e.key) {
-                case 'ArrowDown':
+                case 'ArrowDown': {
                     e.preventDefault();
                     const nextIndex = (currentIndex + 1) % LANGUAGES.length;
                     setHoveredLang(LANGUAGES[nextIndex].code);
                     break;
-                case 'ArrowUp':
+                }
+                case 'ArrowUp': {
                     e.preventDefault();
                     const prevIndex = (currentIndex - 1 + LANGUAGES.length) % LANGUAGES.length;
                     setHoveredLang(LANGUAGES[prevIndex].code);
                     break;
+                }
                 case 'Enter':
                     e.preventDefault();
                     if (hoveredLang) {
@@ -266,3 +268,5 @@ const LanguageSelector = ({ selectedLine, onSelect }) => {
 };
 
 export default LanguageSelector;
+
+
