@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+﻿import { useState, useRef } from 'react';
 import { Upload, FileAudio, CheckSquare } from 'lucide-react';
 import { useToast } from './Toast';
 import { SUPPORTED_FORMATS, MAX_FILE_SIZE_BYTES, MAX_FILE_SIZE_MB } from '../constants';
@@ -28,7 +28,7 @@ const DragDropZone = ({ onFileSelect }) => {
     const validateAndSetFile = (file) => {
         // Check file size first
         if (file.size > MAX_FILE_SIZE_BYTES) {
-            toast.error(`FILE_TOO_LARGE: Maximum size is ${MAX_FILE_SIZE_MB}MB`);
+            toast.error(`File too large - maximum size is ${MAX_FILE_SIZE_MB}MB`);
             return;
         }
 
@@ -39,7 +39,7 @@ const DragDropZone = ({ onFileSelect }) => {
             onFileSelect(file);
             toast.success(`File ready: ${file.name}`);
         } else {
-            toast.error(`INVALID_FORMAT: Supported formats are ${SUPPORTED_FORMATS.join(', ').toUpperCase()}`);
+            toast.error(`Unsupported format - accepted: ${SUPPORTED_FORMATS.join(', ').toUpperCase()}`);
         }
     };
 
@@ -102,3 +102,4 @@ const DragDropZone = ({ onFileSelect }) => {
 };
 
 export default DragDropZone;
+

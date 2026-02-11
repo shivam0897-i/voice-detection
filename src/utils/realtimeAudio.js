@@ -111,3 +111,31 @@ export async function createRealtimeChunksFromFile(file, chunkDurationSec = 1.6)
     await audioContext.close().catch(() => {});
   }
 }
+
+/**
+ * Convert a MediaRecorder Blob (webm/ogg) to WAV base64.
+ * Used by useMicRecorder to convert mic chunks before sending to the backend.
+ *
+ * @param {Blob} blob — audio blob from MediaRecorder.ondataavailable
+ * @returns {Promise<string>} — WAV base64 string
+ */
+export async function blobToWavBase64(blob) {
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContextClass) {
+    throw new Error('Web Audio API is not supported in this browser.');
+  }
+
+  const audioContext = new AudioContextClass({ sampleRate: 16000 });
+
+  try {
+    const arrayBuffer = await blob.arrayBuffer();
+    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+    // Convert entire blob to a single WAV chunk
+    const wavBuffer = audioBufferSegmentToWavBuffer(audioBuffer, 0, audioBuffer.length);
+    return arrayBufferToBase64(wavBuffer);
+  } finally {
+    await audioContext.close().catch(() => {});
+  }
+}
+

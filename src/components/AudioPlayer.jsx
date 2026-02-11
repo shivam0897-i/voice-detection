@@ -211,7 +211,7 @@ const AudioPlayer = ({ file }) => {
                 fontSize: '0.7rem',
                 color: '#666',
             }}>
-                <span style={{ textTransform: 'uppercase' }}>Audio_Preview</span>
+                <span style={{ textTransform: 'uppercase' }}>Audio Preview</span>
                 <span>{(file.size / 1024).toFixed(1)} KB</span>
             </div>
 
@@ -252,7 +252,7 @@ const AudioPlayer = ({ file }) => {
                         fontSize: '0.7rem',
                         color: '#666',
                     }}>
-                        Analyzing audioâ€¦
+                        Analyzing audio…
                     </div>
                 )}
                 
@@ -364,4 +364,5 @@ const AudioPlayer = ({ file }) => {
 };
 
 export default AudioPlayer;
+
 

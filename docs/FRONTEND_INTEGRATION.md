@@ -10,6 +10,7 @@ This backend now supports two frontend integration modes: one-shot legacy voice 
 - Supported languages: `Tamil`, `English`, `Hindi`, `Malayalam`, `Telugu`
 - Supported formats: `mp3`, `wav`, `flac`, `ogg`, `m4a`, `mp4`
 - Realtime route compatibility: both `/v1/...` and `/api/voice-detection/v1/...` are supported.
+- Public Vercel deployment: frontend should call same-origin `/api/backend/*` proxy routes; backend API key must stay in Vercel server env (`BACKEND_API_KEY`) and not in browser env.
 
 ## Endpoints
 
@@ -528,6 +529,8 @@ export interface RetentionPolicyResponse {
 ## Open Questions / TODOs
 - Decide if frontend should expose both legacy and realtime modes in final demo, or keep legacy hidden as fallback/debug.
 - Decide final chunk cadence and browser recording strategy (1s vs 2s) based on UX smoothness and device CPU.
+
+
 
 
 

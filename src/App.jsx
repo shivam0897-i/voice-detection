@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef, useMemo } from 'react';
+﻿import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import './index.css';
 import {
   Lock,
@@ -13,6 +13,9 @@ import {
   CheckCircle2,
   Circle,
   Zap,
+  Mic,
+  FileAudio,
+  MicOff,
 } from 'lucide-react';
 import DragDropZone from './components/DragDropZone';
 import LanguageSelector from './components/LanguageSelector';
@@ -20,6 +23,7 @@ import ResultCard from './components/ResultCard';
 import RealtimeSessionPanel from './components/RealtimeSessionPanel';
 import AudioPlayer from './components/AudioPlayer';
 import { useToast } from './components/Toast';
+import useMicRecorder from './hooks/useMicRecorder';
 import {
   detectVoice,
   startRealtimeSession,
@@ -28,6 +32,9 @@ import {
   getRealtimeAlerts,
   endRealtimeSession,
   getRetentionPolicy,
+  checkHealth,
+  createRealtimeWebSocket,
+  isRealtimeWebSocketEnabled,
 } from './services/api';
 import {
   VIZ_INTERVAL_MS,
@@ -68,7 +75,7 @@ function mergeAlerts(existing, incoming) {
   const seen = new Set();
 
   for (const item of merged) {
-    const key = `${item.timestamp || ''}-${item.alert_type || ''}-${item.reason_summary || ''}`;
+    const key = `${item.alert_type || ''}-${item.severity || ''}-${item.call_label || ''}-${item.risk_level || ''}-${item.reason_summary || ''}`;
     if (seen.has(key)) {
       continue;
     }
@@ -81,8 +88,10 @@ function mergeAlerts(existing, incoming) {
 
 function App() {
   const toast = useToast();
+  const { startRecording, stopRecording, isRecording, error: micError } = useMicRecorder();
 
   const [mode, setMode] = useState(MODES.REALTIME);
+  const [inputSource, setInputSource] = useState('mic'); // 'mic' or 'file'
   const [file, setFile] = useState(null);
   const [language, setLanguage] = useState('English');
 
@@ -109,12 +118,18 @@ function App() {
   const [retentionPolicy, setRetentionPolicy] = useState(null);
   const [realtimeError, setRealtimeError] = useState(null);
   const [realtimeVoiceProbe, setRealtimeVoiceProbe] = useState(null);
+  const [backendHealth, setBackendHealth] = useState(null);
 
   const stopRequestedRef = useRef(false);
   const analyzeShortcutRef = useRef(null);
+  const micSessionRef = useRef(null);
+  const micStartTimeRef = useRef(null);
+  const wsRef = useRef(null);
+  const httpQueueRef = useRef(Promise.resolve());
 
   const isRealtime = mode === MODES.REALTIME;
-  const canStartAnalysis = !!file && !loading;
+  const isMicMode = isRealtime && inputSource === 'mic';
+  const canStartAnalysis = isMicMode ? !loading : (!!file && !loading);
 
   const activeLabel = isRealtime
     ? realtimeLatest?.call_label || realtimeSummary?.final_call_label || 'PENDING'
@@ -123,9 +138,9 @@ function App() {
   const activeRisk = realtimeLatest?.risk_level || (realtimeSummary ? 'ENDED' : 'IDLE');
   const chunkCurrent = chunkProgress.current;
 
-  const addLog = (msg) => {
+  const addLog = useCallback((msg) => {
     setLogs((prev) => [...prev.slice(-6), { time: new Date().toLocaleTimeString(), msg }]);
-  };
+  }, []);
 
   const resetRealtimeState = () => {
     setSessionId(null);
@@ -216,6 +231,22 @@ function App() {
     };
   }, []);
 
+  // Health check — poll on mount and every 30s
+  useEffect(() => {
+    let timer;
+    const poll = async () => {
+      try {
+        const health = await checkHealth();
+        setBackendHealth(health);
+      } catch {
+        setBackendHealth({ status: 'unreachable', model_loaded: false });
+      }
+    };
+    void poll();
+    timer = setInterval(poll, 30000);
+    return () => clearInterval(timer);
+  }, []);
+
   const moduleStatus = useMemo(
     () => ({
       processing: loading,
@@ -239,7 +270,7 @@ function App() {
       },
       {
         id: 'fusion',
-        title: 'Audio + language + behaviour signals',
+        title: 'Audio + language + behavior signals',
         done: hasSignalFusion,
       },
       {
@@ -331,7 +362,7 @@ function App() {
     }
   };
 
-  const finalizeRealtimeSession = async (activeSessionId, startTime) => {
+  const finalizeRealtimeSession = useCallback(async (activeSessionId, startTime) => {
     const [summaryResult, alertsResult, endResult] = await Promise.allSettled([
       getRealtimeSummary(activeSessionId),
       getRealtimeAlerts(activeSessionId, REALTIME_ALERTS_LIMIT),
@@ -360,7 +391,7 @@ function App() {
     if (summary) {
       appendHistory({
         id: Date.now(),
-        fileName: file.name,
+        fileName: file?.name || 'Live Mic',
         language,
         mode: MODES.REALTIME,
         classification: summary.final_call_label,
@@ -372,7 +403,7 @@ function App() {
     } else {
       addLog(`REALTIME_COMPLETE: NO_SUMMARY (${elapsed}s)`);
     }
-  };
+  }, [addLog, language, file]);
 
   const handleRealtimeAnalyze = async () => {
     if (!file) {
@@ -485,7 +516,7 @@ function App() {
       toast.error(message);
 
       if (activeSessionId) {
-        await endRealtimeSession(activeSessionId).catch(() => {});
+        await endRealtimeSession(activeSessionId).catch(() => { });
       }
     } finally {
       stopRequestedRef.current = false;
@@ -493,9 +524,203 @@ function App() {
     }
   };
 
+  // === Live Mic Realtime Analysis (WebSocket with HTTP fallback) ===
+  const handleMicRealtimeAnalyze = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    setResult(null);
+    setResponseTime(null);
+    setRealtimeError(null);
+    resetRealtimeState();
+    stopRequestedRef.current = false;
+    micStartTimeRef.current = performance.now();
+
+    let activeSessionId = null;
+    let wsFailed = false;
+    let chunkIndex = 0;
+    httpQueueRef.current = Promise.resolve();
+
+    /** Process a chunk update from either WS or HTTP path. */
+    const handleChunkUpdate = (update) => {
+      chunkIndex += 1;
+      setRealtimeLatest(update);
+      setChunkProgress((prev) => ({ current: prev.current + 1, total: 0 }));
+
+      setRealtimeTimeline((prev) => {
+        const next = [...prev, update];
+        return next.slice(-REALTIME_TIMELINE_LIMIT);
+      });
+
+      setVizData((prev) => {
+        const value = Math.max(0, Math.min(1, Number(update.risk_score || 0) / 100));
+        return [...prev.slice(1), value];
+      });
+
+      if (update.alert?.triggered) {
+        const liveAlert = {
+          timestamp: update.timestamp,
+          risk_score: update.risk_score,
+          risk_level: update.risk_level,
+          call_label: update.call_label,
+          alert_type: update.alert.alert_type,
+          severity: update.alert.severity,
+          reason_summary: update.alert.reason_summary,
+          recommended_action: update.alert.recommended_action,
+        };
+        setRealtimeAlerts((prev) => mergeAlerts(prev, [liveAlert]));
+        addLog(`ALERT: ${update.alert.alert_type || 'LIVE_ALERT'}`);
+      } else {
+        addLog(`MIC_CHUNK_${chunkIndex}: ${update.risk_level} (${update.risk_score})`);
+      }
+    };
+
+    try {
+      setSessionStatus('starting');
+      addLog('MIC_SESSION_STARTING');
+
+      const session = await startRealtimeSession(language);
+      activeSessionId = session.session_id;
+      micSessionRef.current = activeSessionId;
+      setSessionId(session.session_id);
+      setSessionStatus('streaming');
+      addLog(`SESSION_ACTIVE: ${String(session.session_id).slice(0, 8).toUpperCase()}`);
+      setChunkProgress({ current: 0, total: 0 });
+
+      const wsEnabled = isRealtimeWebSocketEnabled();
+      let wsHandle = null;
+
+      if (wsEnabled) {
+        wsHandle = createRealtimeWebSocket(activeSessionId, {
+          onUpdate: handleChunkUpdate,
+          onError(err) {
+            console.warn('WebSocket error:', err);
+            if (wsHandle && !wsFailed) {
+              wsFailed = true;
+              addLog('WS_FAILED - falling back to HTTP');
+            }
+          },
+          onClose() {
+            if (wsHandle && !wsFailed) {
+              wsFailed = true;
+              addLog('WS_CLOSED - falling back to HTTP');
+            }
+          },
+          onOpen() {
+            addLog('WS_CONNECTED');
+          },
+        });
+        wsRef.current = wsHandle;
+
+        // Wait for WS to open; if it fails, mark fallback immediately
+        try {
+          await wsHandle.ready;
+        } catch {
+          wsFailed = true;
+          addLog('WS_CONNECT_FAILED - using HTTP');
+        }
+      } else {
+        wsFailed = true;
+        addLog('WS_DISABLED - using HTTP');
+      }
+
+      // Start mic recording - send chunks via WS or HTTP
+      await startRecording((wavBase64) => {
+        if (stopRequestedRef.current || !micSessionRef.current) return;
+
+        if (wsHandle && !wsFailed) {
+          // WebSocket path — send camelCase keys to match backend schema
+          wsHandle.send({
+            audioFormat: 'wav',
+            audioBase64: wavBase64,
+            language,
+          });
+        } else {
+          // HTTP fallback — serialized via promise chain
+          httpQueueRef.current = httpQueueRef.current.then(async () => {
+            if (stopRequestedRef.current || !micSessionRef.current) return;
+            try {
+              const update = await analyzeRealtimeChunk(micSessionRef.current, {
+                audioFormat: 'wav',
+                audioBase64: wavBase64,
+                language,
+              });
+              handleChunkUpdate(update);
+            } catch (chunkErr) {
+              console.warn('HTTP chunk failed:', chunkErr);
+              addLog(`CHUNK_ERROR: ${chunkErr?.message || 'unknown'}`);
+            }
+          });
+        }
+      });
+
+    } catch (err) {
+      const message = err?.message || 'Mic recording failed. Please retry.';
+      setRealtimeError(message);
+      setError(message);
+      setSessionStatus('error');
+      addLog(`ERROR: ${message}`);
+      toast.error(message);
+
+      if (wsRef.current) {
+        wsRef.current.close();
+        wsRef.current = null;
+      }
+      if (activeSessionId) {
+        await endRealtimeSession(activeSessionId).catch(() => { });
+      }
+      micSessionRef.current = null;
+      micStartTimeRef.current = null;
+      setLoading(false);
+    }
+    // NOTE: loading stays true on success — user must press Stop to finalize.
+  }, [language, startRecording, addLog, toast]);
+
+  const handleStopMicRealtime = useCallback(async () => {
+    const activeSessionId = micSessionRef.current;
+    const sessionStartTime = micStartTimeRef.current || performance.now();
+    stopRecording();
+    micSessionRef.current = null;
+    micStartTimeRef.current = null;
+    stopRequestedRef.current = true;
+    setSessionStatus('ending');
+    addLog('MIC_STOP_REQUESTED');
+
+    // Close WebSocket connection
+    if (wsRef.current) {
+      wsRef.current.close();
+      wsRef.current = null;
+    }
+
+    // Wait for any in-flight HTTP fallback chunks to complete
+    try {
+      await httpQueueRef.current;
+    } catch {
+      /* chunk errors are already logged individually */
+    }
+
+    if (activeSessionId) {
+      try {
+        await finalizeRealtimeSession(activeSessionId, sessionStartTime);
+        setSessionStatus('ended');
+        toast.success('Mic session completed.');
+      } catch {
+        setSessionStatus('error');
+        toast.error('Failed to finalize session.');
+      }
+    } else {
+      setSessionStatus('ended');
+    }
+
+    setLoading(false);
+  }, [stopRecording, addLog, toast, finalizeRealtimeSession]);
+
   async function handleAnalyze() {
     if (isRealtime) {
-      await handleRealtimeAnalyze();
+      if (isMicMode) {
+        await handleMicRealtimeAnalyze();
+      } else {
+        await handleRealtimeAnalyze();
+      }
     } else {
       await handleLegacyAnalyze();
     }
@@ -504,6 +729,11 @@ function App() {
   analyzeShortcutRef.current = handleAnalyze;
 
   const handleStopRealtime = () => {
+    if (isMicMode) {
+      void handleStopMicRealtime();
+      return;
+    }
+
     if (!loading || sessionStatus !== 'streaming') {
       return;
     }
@@ -545,7 +775,27 @@ function App() {
           <p className="tagline">GUVI INDIA AI IMPACT BUILDATHON // CHALLENGE 1 // v2.1.0</p>
         </div>
         <div className="text-mono" style={{ textAlign: 'right', fontSize: '0.7rem' }}>
-          <div style={{ color: 'var(--color-accent)' }}>SYSTEM_ONLINE</div>
+          <div style={{
+            color: !backendHealth ? '#888'
+              : backendHealth.status === 'healthy' ? 'var(--color-accent)'
+              : backendHealth.status === 'degraded' ? '#f97316'
+              : '#ef4444',
+          }}>
+            {!backendHealth ? 'CHECKING…'
+              : backendHealth.status === 'healthy' ? 'SYSTEM_ONLINE'
+              : backendHealth.status === 'degraded' ? '⚠ DEGRADED'
+              : '✕ UNREACHABLE'}
+          </div>
+          {backendHealth?.status === 'degraded' && (
+            <div style={{ color: '#f97316', fontSize: '0.6rem' }}>
+              {!backendHealth.model_loaded ? 'MODEL_NOT_LOADED' : 'STORE_ISSUE'}
+            </div>
+          )}
+          {backendHealth?.session_store_backend && (
+            <div style={{ color: '#555', fontSize: '0.58rem' }}>
+              STORE: {backendHealth.session_store_backend.toUpperCase()}
+            </div>
+          )}
           <div>SECURE_CONNECTION <Lock size={10} aria-hidden="true" /></div>
         </div>
       </header>
@@ -554,9 +804,9 @@ function App() {
         <aside className="bento-panel">
           <span className="panel-label">Call Input Status</span>
           <div className="flex-between mt-20 text-mono" style={{ fontSize: '0.8rem' }}>
-            <span style={{ color: 'var(--color-text-dim)' }}>FILE:</span>
-            <span style={{ color: file ? 'var(--color-accent)' : 'var(--color-text-dim)' }}>
-              {file ? 'READY' : 'NO_FILE'}
+            <span style={{ color: 'var(--color-text-dim)' }}>INPUT:</span>
+            <span style={{ color: 'var(--color-accent)' }}>
+              {isMicMode ? (isRecording ? 'MIC_LIVE' : 'MIC_READY') : file ? 'FILE_READY' : 'NO_FILE'}
             </span>
           </div>
           <div className="flex-between mt-10 text-mono" style={{ fontSize: '0.8rem' }}>
@@ -611,7 +861,7 @@ function App() {
             <div className="mission-chip">Challenge 1 Mission</div>
             <h2 className="mission-title">AI-Powered Audio Call Analyzer</h2>
             <p className="mission-subtitle">
-              Detect spam and fraud calls in real time by combining audio patterns, spoken language cues, and behavior escalation,
+              Detect spam and fraud calls in real time by combining audio patterns, spoken language cues, and behavioral escalation,
               then alert users instantly with clear action guidance.
             </p>
             <div className="mission-grid">
@@ -629,7 +879,7 @@ function App() {
               </div>
               <div className="mission-card">
                 <span>Session Chunks</span>
-                <strong>{chunkProgress.current}/{chunkProgress.total || '--'}</strong>
+                <strong>{chunkProgress.current}{chunkProgress.total ? `/${chunkProgress.total}` : ''}</strong>
               </div>
             </div>
           </div>
@@ -668,12 +918,111 @@ function App() {
             <LanguageSelector selectedLine={language} onSelect={setLanguage} />
           </div>
 
-          <div className="bento-panel" style={{ padding: '10px' }}>
-            <DragDropZone onFileSelect={handleFileSelect} />
-            <AudioPlayer file={file} />
-          </div>
+          {/* Input Source Toggle (Realtime mode only) */}
+          {isRealtime && (
+            <div className="bento-panel">
+              <span className="panel-label">Input Source</span>
+              <div className="mode-switch">
+                <button
+                  type="button"
+                  onClick={() => setInputSource('mic')}
+                  disabled={loading}
+                  className={`mode-button ${inputSource === 'mic' ? 'active' : ''}`}
+                  aria-pressed={inputSource === 'mic'}
+                >
+                  <Mic size={14} aria-hidden="true" /> Live Microphone
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setInputSource('file')}
+                  disabled={loading}
+                  className={`mode-button ${inputSource === 'file' ? 'active' : ''}`}
+                  aria-pressed={inputSource === 'file'}
+                >
+                  <FileAudio size={14} aria-hidden="true" /> Upload File
+                </button>
+              </div>
+              <p className="mode-note">
+                {inputSource === 'mic'
+                  ? 'Record live from your microphone. Audio is chunked and streamed in real time to the analysis engine.'
+                  : 'Upload an audio file to simulate a realtime call analysis session.'}
+              </p>
+            </div>
+          )}
 
-          {file && !loading && (
+          {/* Mic Controls (when mic mode selected) */}
+          {isMicMode && (
+            <div className="bento-panel" style={{ padding: '20px', textAlign: 'center' }}>
+              {micError && (
+                <div style={{
+                  padding: '12px',
+                  marginBottom: '16px',
+                  background: 'rgba(255, 50, 50, 0.1)',
+                  border: '1px solid #ff3333',
+                  color: '#ff6666',
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '0.8rem',
+                }}>
+                  <MicOff size={14} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+                  {micError}
+                </div>
+              )}
+
+              {!isRecording && !loading && (
+                <button
+                  onClick={() => { void handleAnalyze(); }}
+                  aria-label="Start live mic recording and analysis"
+                  className="analyze-button"
+                  style={{ width: '100%' }}
+                >
+                  <Mic size={14} aria-hidden="true" /> Start Live Analysis
+                </button>
+              )}
+
+              {isRecording && (
+                <div>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '12px',
+                    marginBottom: '16px',
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '0.85rem',
+                    color: '#ef4444',
+                  }}>
+                    <span style={{
+                      width: '10px',
+                      height: '10px',
+                      borderRadius: '50%',
+                      background: '#ef4444',
+                      animation: 'pulse 1.5s ease-in-out infinite',
+                    }} />
+                    RECORDING — {chunkProgress.current} chunks sent
+                  </div>
+                  <button
+                    type="button"
+                    className="stop-button"
+                    onClick={() => { void handleStopMicRealtime(); }}
+                    aria-label="Stop mic recording and finalize session"
+                    style={{ width: '100%' }}
+                  >
+                    <Square size={14} aria-hidden="true" /> Stop Recording
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* File Upload (when file mode or legacy) */}
+          {!isMicMode && (
+            <div className="bento-panel" style={{ padding: '10px' }}>
+              <DragDropZone onFileSelect={handleFileSelect} />
+              <AudioPlayer file={file} />
+            </div>
+          )}
+
+          {!isMicMode && file && !loading && (
             <button
               onClick={() => {
                 void handleAnalyze();
@@ -686,7 +1035,7 @@ function App() {
             </button>
           )}
 
-          {loading && isRealtime && sessionStatus === 'streaming' && (
+          {loading && isRealtime && !isMicMode && sessionStatus === 'streaming' && (
             <button
               type="button"
               className="stop-button"
@@ -764,7 +1113,7 @@ function App() {
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                 <Clock size={12} color="#ccff00" aria-hidden="true" />
                 <span className="text-mono" style={{ fontSize: '0.7rem', color: '#888', textTransform: 'uppercase' }}>
-                  Response_Time
+                  Response Time
                 </span>
               </div>
               <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#ccff00', fontFamily: 'var(--font-mono)' }}>
@@ -879,6 +1228,8 @@ function App() {
 }
 
 export default App;
+
+
 
 
 

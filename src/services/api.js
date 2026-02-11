@@ -7,10 +7,12 @@ import { API_TIMEOUT_MS, MAX_FILE_SIZE_BYTES, MAX_FILE_SIZE_MB } from '../consta
 
 const DEFAULT_BACKEND_BASE_URL = 'https://shivam-2211-voice-detection-api.hf.space';
 const LEGACY_ENDPOINT_PATH = '/api/voice-detection';
+const PROXY_BASE_PATH = '/api/backend';
 
 const API_CONFIG = {
-  BASE_URL: import.meta.env.VITE_API_BASE_URL || DEFAULT_BACKEND_BASE_URL,
+  DIRECT_BASE_URL: import.meta.env.VITE_API_BASE_URL || DEFAULT_BACKEND_BASE_URL,
   API_KEY: import.meta.env.VITE_API_KEY,
+  FORCE_PROXY: String(import.meta.env.VITE_USE_SERVER_PROXY || '').toLowerCase() === 'true',
 };
 
 function normalizeUrl(url) {
@@ -24,13 +26,23 @@ function normalizePath(path) {
   return path.startsWith('/') ? path : `/${path}`;
 }
 
+function shouldUseServerProxy() {
+  return API_CONFIG.FORCE_PROXY || !API_CONFIG.API_KEY;
+}
+
 function buildEndpointUrl(path) {
-  const base = normalizeUrl(API_CONFIG.BASE_URL);
-  if (!base) {
-    throw new Error('Missing VITE_API_BASE_URL. Set backend URL in .env.local.');
+  const normalizedPath = normalizePath(path);
+
+  if (shouldUseServerProxy()) {
+    const proxyPath = normalizedPath.startsWith('/') ? normalizedPath.slice(1) : normalizedPath;
+    return `${PROXY_BASE_PATH}?path=${encodeURIComponent(proxyPath)}`;
   }
 
-  const normalizedPath = normalizePath(path);
+  const base = normalizeUrl(API_CONFIG.DIRECT_BASE_URL);
+  if (!base) {
+    throw new Error('Unable to connect. Please check your configuration and try again.');
+  }
+
   const baseHasLegacySuffix = base.endsWith(LEGACY_ENDPOINT_PATH);
 
   // If BASE_URL itself points to legacy endpoint, preserve that behavior only
@@ -48,22 +60,23 @@ function buildEndpointUrl(path) {
 }
 
 async function fetchJson(path, options = {}) {
-  if (!API_CONFIG.API_KEY) {
-    throw new Error('Missing VITE_API_KEY. Add API key in .env.local.');
-  }
-
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
 
   try {
+    const headers = {
+      'Content-Type': 'application/json',
+      ...(options.headers || {}),
+    };
+
+    if (!shouldUseServerProxy() && API_CONFIG.API_KEY) {
+      headers['x-api-key'] = API_CONFIG.API_KEY;
+    }
+
     const response = await fetch(buildEndpointUrl(path), {
       ...options,
       signal: controller.signal,
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': API_CONFIG.API_KEY,
-        ...(options.headers || {}),
-      },
+      headers,
     });
 
     const data = await response.json().catch(() => ({}));
@@ -108,16 +121,20 @@ async function fetchRealtimeWithFallback(suffixPath, options = {}) {
   if (lastNotFoundError) {
     throw lastNotFoundError;
   }
-  throw new Error('Realtime endpoint unavailable. Check VITE_API_BASE_URL and backend deployment routes.');
+  throw new Error('Analysis service is temporarily unavailable. Please try again shortly.');
 }
 
-// Warn in development if required env vars are missing
+// Warn in development for config shape issues.
 if (import.meta.env.DEV) {
-  if (!API_CONFIG.API_KEY) {
-    console.warn('[VoiceGuard] Missing VITE_API_KEY. Create .env.local with your API key.');
-  }
-  if (!API_CONFIG.BASE_URL) {
-    console.warn('[VoiceGuard] Missing VITE_API_BASE_URL. Create .env.local with your API endpoint.');
+  if (shouldUseServerProxy()) {
+    console.info('[VoiceGuard] Using server proxy mode for backend calls.');
+  } else {
+    if (!API_CONFIG.API_KEY) {
+      console.warn('[VoiceGuard] Missing VITE_API_KEY. Create .env.local with your API key.');
+    }
+    if (!API_CONFIG.DIRECT_BASE_URL) {
+      console.warn('[VoiceGuard] Missing VITE_API_BASE_URL. Create .env.local with your API endpoint.');
+    }
   }
 }
 
@@ -193,3 +210,143 @@ export async function endRealtimeSession(sessionId) {
 export async function getRetentionPolicy() {
   return fetchRealtimeWithFallback('/privacy/retention-policy', { method: 'GET' });
 }
+
+/**
+ * Health check.
+ * @returns {{ status: 'healthy'|'degraded', model_loaded: boolean, session_store_backend: string }}
+ */
+export async function checkHealth() {
+  const response = await fetch(buildEndpointUrl('/health'), { method: 'GET' });
+  if (!response.ok) {
+    throw new Error(`Health check failed: ${response.status}`);
+  }
+  return response.json();
+}
+
+/**
+ * Build a WebSocket URL for the realtime streaming endpoint.
+ * Uses VITE_API_WS_BASE_URL if set, otherwise derives from VITE_API_BASE_URL (http->ws).
+ */
+function buildWsUrl(sessionId) {
+  if (shouldUseServerProxy()) {
+    throw new Error('WebSocket streaming is unavailable in proxy mode.');
+  }
+
+  if (!API_CONFIG.API_KEY) {
+    throw new Error('WebSocket streaming requires VITE_API_KEY in direct mode.');
+  }
+
+  const wsEnv = import.meta.env.VITE_API_WS_BASE_URL;
+  let wsBase;
+
+  if (wsEnv) {
+    wsBase = normalizeUrl(wsEnv);
+  } else {
+    const httpBase = normalizeUrl(API_CONFIG.DIRECT_BASE_URL);
+    const rootBase = httpBase.endsWith(LEGACY_ENDPOINT_PATH)
+      ? httpBase.slice(0, -LEGACY_ENDPOINT_PATH.length)
+      : httpBase;
+    wsBase = rootBase.replace(/^http/, 'ws');
+  }
+
+  return `${wsBase}/v1/session/${sessionId}/stream?api_key=${encodeURIComponent(API_CONFIG.API_KEY)}`;
+}
+
+export function isRealtimeWebSocketEnabled() {
+  return !shouldUseServerProxy() && Boolean(API_CONFIG.API_KEY);
+}
+
+/**
+ * Create a WebSocket connection to the backend realtime streaming endpoint.
+ *
+ * Includes onopen gating: chunks sent before the connection is open are
+ * buffered in a pending queue and flushed automatically upon open.
+ *
+ * @param {string} sessionId - active session ID
+ * @param {{ onUpdate?: Function, onError?: Function, onClose?: Function, onOpen?: Function }} handlers
+ * @returns {{ send: (chunk: object) => void, close: () => void, ready: Promise<void>, ws: WebSocket }}
+ */
+export function createRealtimeWebSocket(sessionId, { onUpdate, onError, onClose, onOpen } = {}) {
+  const url = buildWsUrl(sessionId);
+  const ws = new WebSocket(url);
+  const pendingQueue = [];
+  let isOpen = false;
+  let rejectReady = null;
+
+  /** Promise that resolves when the WS connection is open, rejects on early failure or close. */
+  const ready = new Promise((resolve, reject) => {
+    rejectReady = reject;
+
+    ws.onopen = () => {
+      isOpen = true;
+      rejectReady = null; // no longer needed
+      // Flush any chunks that were queued before connection opened
+      while (pendingQueue.length > 0) {
+        ws.send(JSON.stringify(pendingQueue.shift()));
+      }
+      onOpen?.();
+      resolve();
+    };
+
+    // If the socket errors before opening, reject the ready promise
+    ws.onerror = () => {
+      if (!isOpen) {
+        reject(new Error('WebSocket failed to connect'));
+        rejectReady = null;
+      }
+      onError?.(new Error('WebSocket connection error'));
+    };
+  });
+
+  ws.onmessage = (event) => {
+    try {
+      const data = JSON.parse(event.data);
+      if (data.status === 'error') {
+        onError?.(new Error(data.message || 'WebSocket chunk error'));
+      } else {
+        onUpdate?.(data);
+      }
+    } catch (parseErr) {
+      onError?.(parseErr);
+    }
+  };
+
+  ws.onclose = (event) => {
+    // If socket closes before open, reject the ready promise to prevent hangs
+    if (rejectReady) {
+      rejectReady(new Error('WebSocket closed before open'));
+      rejectReady = null;
+    }
+    isOpen = false;
+    onClose?.(event);
+  };
+
+  return {
+    /**
+      * Send a chunk payload (must match SessionChunkRequest schema).
+      * If the connection is not yet open, the payload is queued and
+      * will be flushed automatically when the connection opens.
+      */
+    send(chunkPayload) {
+      if (isOpen && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify(chunkPayload));
+      } else if (ws.readyState === WebSocket.CONNECTING) {
+        pendingQueue.push(chunkPayload);
+      }
+      // If CLOSING/CLOSED, drop silently - caller should handle via onClose/onError
+    },
+    /** Gracefully close the connection. */
+    close() {
+      isOpen = false;
+      if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
+        ws.close();
+      }
+    },
+    /** Promise that resolves when the connection is open. */
+    ready,
+    /** Raw WebSocket instance (for readyState checks). */
+    ws,
+  };
+}
+
+

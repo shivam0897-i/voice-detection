@@ -62,7 +62,7 @@ class ErrorBoundary extends React.Component {
               textTransform: 'uppercase',
               letterSpacing: '0.1em',
             }}>
-              System_Malfunction
+              System Error
             </h1>
             
             <p style={{ 

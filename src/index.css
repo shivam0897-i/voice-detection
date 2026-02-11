@@ -207,6 +207,17 @@ body {
   }
 }
 
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.85);
+  }
+}
+
 .hidden-input {
   display: none !important;
 }
@@ -532,7 +543,7 @@ button:focus-visible,
   transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
 }
 
-.mode-button:hover:not(:disabled) {
+.mode-button:not(.active):hover:not(:disabled) {
   border-color: var(--color-accent);
   color: var(--color-accent);
 }
@@ -542,6 +553,14 @@ button:focus-visible,
   color: #000;
   background: var(--color-accent);
   font-weight: 700;
+}
+
+/* Keep active buttons readable while hovered/focused */
+.mode-button.active:hover:not(:disabled),
+.mode-button.active:focus-visible {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: #000;
 }
 
 .mode-button:disabled {
@@ -690,3 +709,5 @@ button:focus-visible,
     grid-template-columns: 1fr 1fr;
   }
 }
+
+

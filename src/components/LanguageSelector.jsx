@@ -4,10 +4,10 @@ import { ChevronDown, Globe, Check } from 'lucide-react';
 
 const LANGUAGES = [
     { code: "English", native: "English" },
-    { code: "Tamil", native: "à®¤à®®à®¿à®´à¯" },
-    { code: "Hindi", native: "à¤¹à¤¿à¤¨à¥à¤¦à¥€" },
-    { code: "Malayalam", native: "à´®à´²à´¯à´¾à´³à´‚" },
-    { code: "Telugu", native: "à°¤à±†à°²à±à°—à±" }
+    { code: "Tamil", native: "\u0BA4\u0BAE\u0BBF\u0BB4\u0BCD" },
+    { code: "Hindi", native: "\u0939\u093F\u0928\u094D\u0926\u0940" },
+    { code: "Malayalam", native: "\u0D2E\u0D32\u0D2F\u0D3E\u0D33\u0D02" },
+    { code: "Telugu", native: "\u0C24\u0C46\u0C32\u0C41\u0C17\u0C41" }
 ];
 
 // Inline styles for portal (ensures dark theme works outside React tree)
@@ -105,7 +105,7 @@ const LanguageSelector = ({ selectedLine, onSelect }) => {
         };
         window.addEventListener('scroll', handleScroll, { capture: true });
         window.addEventListener('resize', handleScroll);
-        
+
         return () => {
             window.removeEventListener('scroll', handleScroll, { capture: true });
             window.removeEventListener('resize', handleScroll);
@@ -116,7 +116,7 @@ const LanguageSelector = ({ selectedLine, onSelect }) => {
     useEffect(() => {
         const handleClickOutside = (e) => {
             if (
-                triggerRef.current && 
+                triggerRef.current &&
                 !triggerRef.current.contains(e.target) &&
                 dropdownRef.current &&
                 !dropdownRef.current.contains(e.target)
@@ -128,7 +128,7 @@ const LanguageSelector = ({ selectedLine, onSelect }) => {
         if (isOpen) {
             document.addEventListener('mousedown', handleClickOutside);
         }
-        
+
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
@@ -138,9 +138,9 @@ const LanguageSelector = ({ selectedLine, onSelect }) => {
     useEffect(() => {
         const handleKeyDown = (e) => {
             if (!isOpen) return;
-            
+
             const currentIndex = LANGUAGES.findIndex(l => l.code === (hoveredLang || currentLang));
-            
+
             switch (e.key) {
                 case 'ArrowDown': {
                     e.preventDefault();
@@ -180,7 +180,7 @@ const LanguageSelector = ({ selectedLine, onSelect }) => {
     const getOptionStyle = (lang) => {
         const isSelected = lang.code === currentLang;
         const isHovered = lang.code === hoveredLang;
-        
+
         return {
             ...portalStyles.option,
             ...(isSelected ? portalStyles.optionSelected : {}),
@@ -193,7 +193,7 @@ const LanguageSelector = ({ selectedLine, onSelect }) => {
         <div className="lang-selector-container">
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', color: '#888', fontSize: '0.7rem' }}>
                 <Globe size={12} aria-hidden="true" />
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", textTransform: 'uppercase' }}>Target_Language_Profile</span>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", textTransform: 'uppercase' }}>Language</span>
             </div>
 
             <button
@@ -203,7 +203,7 @@ const LanguageSelector = ({ selectedLine, onSelect }) => {
                 aria-haspopup="listbox"
                 aria-expanded={isOpen}
                 aria-label={`Select language. Current: ${currentLang}`}
-                style={{ 
+                style={{
                     borderColor: isOpen ? '#ccff00' : '#fff',
                     display: 'flex',
                     alignItems: 'center',
@@ -224,7 +224,7 @@ const LanguageSelector = ({ selectedLine, onSelect }) => {
             </button>
 
             {isOpen && createPortal(
-                <div 
+                <div
                     ref={dropdownRef}
                     role="listbox"
                     aria-label="Select language"
@@ -268,5 +268,3 @@ const LanguageSelector = ({ selectedLine, onSelect }) => {
 };
 
 export default LanguageSelector;
-
-

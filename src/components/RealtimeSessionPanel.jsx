@@ -246,7 +246,7 @@ const RealtimeSessionPanel = ({
           <div>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: '#888' }}>CHUNKS</div>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: '#ddd' }}>
-              {chunkProgress.current}/{chunkProgress.total || '--'}
+              {chunkProgress.total > 0 ? `${chunkProgress.current}/${chunkProgress.total}` : chunkProgress.current > 0 ? `${chunkProgress.current} (live)` : '0'}
             </div>
           </div>
         </div>
@@ -391,15 +391,63 @@ const RealtimeSessionPanel = ({
           <div style={{ border: '1px solid #222', background: '#070707', padding: '14px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
               <MessageSquareText size={14} aria-hidden="true" color="#8ecae6" />
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: '#888' }}>CONVERSATION INTELLIGENCE</span>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: '#888' }}>CONVERSATIONAL INTELLIGENCE</span>
               <span style={{ marginLeft: 'auto', color: '#888', fontFamily: 'var(--font-mono)', fontSize: '0.68rem' }}>
                 ASR: {languageAnalysis.asr_engine || 'unavailable'}
+                {languageAnalysis.transcript_confidence > 0 && (
+                  <span style={{ marginLeft: '8px', color: '#6ee7b7' }}>
+                    ({(languageAnalysis.transcript_confidence * 100).toFixed(0)}% conf)
+                  </span>
+                )}
               </span>
             </div>
 
             <div style={{ color: '#d4d4d4', fontFamily: 'var(--font-mono)', fontSize: '0.75rem', lineHeight: 1.45 }}>
-              {transcript || 'Transcript unavailable. Risk model still evaluated acoustic + behavioural signals.'}
+              {transcript || 'Transcript unavailable. Risk model still evaluated acoustic + behavioral signals.'}
             </div>
+
+            {/* LLM Semantic Badge */}
+            {languageAnalysis.llm_semantic_used && (
+              <div style={{
+                marginTop: '8px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '4px 10px',
+                border: '1px solid #7c3aed',
+                background: 'rgba(124, 58, 237, 0.1)',
+                fontFamily: 'var(--font-mono)',
+                fontSize: '0.66rem',
+                color: '#c4b5fd',
+              }}>
+                <span style={{ color: '#a78bfa' }}>LLM</span>
+                {languageAnalysis.llm_semantic_model && <span>{languageAnalysis.llm_semantic_model}</span>}
+                {languageAnalysis.llm_semantic_confidence > 0 && (
+                  <span style={{ color: '#6ee7b7' }}>({(languageAnalysis.llm_semantic_confidence * 100).toFixed(0)}%)</span>
+                )}
+              </div>
+            )}
+
+            {/* Sub-Score Breakdown */}
+            {(languageAnalysis.keyword_score > 0 || languageAnalysis.semantic_score > 0 || languageAnalysis.behaviour_score > 0) && (
+              <div style={{ marginTop: '10px', display: 'grid', gap: '4px' }}>
+                <div style={{ color: '#888', fontFamily: 'var(--font-mono)', fontSize: '0.68rem', marginBottom: '2px' }}>SIGNAL SCORES</div>
+                {[{ label: 'Keyword', val: languageAnalysis.keyword_score, color: '#38bdf8' },
+                { label: 'Semantic', val: languageAnalysis.semantic_score, color: '#c084fc' },
+                { label: 'Behaviour', val: languageAnalysis.behaviour_score, color: '#4ade80' }]
+                  .filter((s) => s.val > 0)
+                  .map((s) => (
+                    <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontFamily: 'var(--font-mono)', fontSize: '0.68rem' }}>
+                      <span style={{ color: '#888', width: '72px' }}>{s.label}</span>
+                      <div style={{ flex: 1, height: '4px', background: '#222', position: 'relative' }}>
+                        <div style={{ width: `${Math.min(s.val, 100)}%`, height: '100%', background: s.color, transition: 'width 0.3s ease' }} />
+                      </div>
+                      <span style={{ color: s.color, width: '30px', textAlign: 'right' }}>{s.val}</span>
+                    </div>
+                  ))
+                }
+              </div>
+            )}
 
             {(keywordHits.length > 0 || semanticFlags.length > 0 || behaviourSignals.length > 0) && (
               <div style={{ marginTop: '10px', display: 'grid', gap: '8px' }}>
@@ -413,6 +461,23 @@ const RealtimeSessionPanel = ({
                         <span key={item} style={{ border: '1px solid #334155', padding: '3px 7px', fontFamily: 'var(--font-mono)', fontSize: '0.66rem', color: '#cbd5e1' }}>{item}</span>
                       ))}
                     </div>
+
+                    {/* Keyword Categories */}
+                    {Array.isArray(languageAnalysis.keyword_categories) && languageAnalysis.keyword_categories.length > 0 && (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '6px' }}>
+                        {languageAnalysis.keyword_categories.map((cat) => (
+                          <span key={cat} style={{
+                            border: '1px solid #854d0e',
+                            background: 'rgba(234, 179, 8, 0.08)',
+                            padding: '2px 6px',
+                            fontFamily: 'var(--font-mono)',
+                            fontSize: '0.6rem',
+                            color: '#fbbf24',
+                            textTransform: 'uppercase',
+                          }}>{cat}</span>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -466,16 +531,65 @@ const RealtimeSessionPanel = ({
                     }}
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                      <span style={{ color: '#f97316', fontFamily: 'var(--font-mono)', fontSize: '0.72rem' }}>
-                        {alertItem.alert_type || 'ALERT'}
-                      </span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span style={{ color: '#f97316', fontFamily: 'var(--font-mono)', fontSize: '0.72rem' }}>
+                          {alertItem.alert_type || 'ALERT'}
+                        </span>
+                        {alertItem.severity && (
+                          <span style={{
+                            fontSize: '0.6rem',
+                            fontFamily: 'var(--font-mono)',
+                            padding: '2px 6px',
+                            background: alertItem.severity === 'critical' ? 'rgba(239,68,68,0.2)' :
+                              alertItem.severity === 'high' ? 'rgba(249,115,22,0.2)' :
+                                alertItem.severity === 'medium' ? 'rgba(234,179,8,0.2)' :
+                                  'rgba(100,116,139,0.2)',
+                            color: alertItem.severity === 'critical' ? '#ef4444' :
+                              alertItem.severity === 'high' ? '#f97316' :
+                                alertItem.severity === 'medium' ? '#eab308' :
+                                  '#94a3b8',
+                            textTransform: 'uppercase',
+                          }}>
+                            {alertItem.severity}
+                          </span>
+                        )}
+                      </div>
                       <span style={{ color: '#777', fontFamily: 'var(--font-mono)', fontSize: '0.68rem' }}>
                         {formatTime(alertItem.timestamp)}
                       </span>
                     </div>
+                    {(alertItem.risk_score != null || alertItem.risk_level || alertItem.call_label) && (
+                      <div style={{
+                        display: 'flex', gap: '10px', marginBottom: '5px',
+                        fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: '#666',
+                      }}>
+                        {alertItem.risk_score != null && (
+                          <span>RISK: <span style={{ color: alertItem.risk_score >= 75 ? '#ef4444' : alertItem.risk_score >= 50 ? '#f97316' : '#eab308' }}>{alertItem.risk_score}</span></span>
+                        )}
+                        {alertItem.risk_level && (
+                          <span>LVL: <span style={{ color: '#8ecae6' }}>{alertItem.risk_level.toUpperCase()}</span></span>
+                        )}
+                        {alertItem.call_label && (
+                          <span>LABEL: <span style={{ color: '#a78bfa' }}>{alertItem.call_label.toUpperCase()}</span></span>
+                        )}
+                      </div>
+                    )}
                     <div style={{ color: '#bbb', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', lineHeight: 1.45 }}>
                       {alertItem.reason_summary || 'No reason summary provided.'}
                     </div>
+                    {alertItem.recommended_action && (
+                      <div style={{
+                        marginTop: '6px',
+                        color: '#38bdf8',
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: '0.68rem',
+                        lineHeight: 1.4,
+                        borderTop: '1px solid #1a1a1a',
+                        paddingTop: '6px',
+                      }}>
+                        ▸ {alertItem.recommended_action}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -513,6 +627,22 @@ const RealtimeSessionPanel = ({
               )}
 
               <ContributionList contributions={latestUpdate.explainability.signal_contributions} />
+
+              {/* Uncertainty Note */}
+              {latestUpdate.explainability.uncertainty_note && (
+                <div style={{
+                  marginTop: '10px',
+                  padding: '8px 10px',
+                  border: '1px solid #854d0e',
+                  background: 'rgba(234, 179, 8, 0.06)',
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '0.7rem',
+                  color: '#fbbf24',
+                  lineHeight: 1.4,
+                }}>
+                  ⚠ {latestUpdate.explainability.uncertainty_note}
+                </div>
+              )}
             </div>
           )}
 
@@ -555,6 +685,11 @@ const RealtimeSessionPanel = ({
                   <div style={{ color: '#bbb' }}>Alerts: {summary.alerts_triggered}</div>
                   <div style={{ color: '#bbb' }}>Max Risk: {summary.max_risk_score}</div>
                   <div style={{ color: '#bbb' }}>Max CPI: {Number(summary.max_cpi || 0).toFixed(1)}</div>
+                  {summary.language && <div style={{ color: '#bbb' }}>Language: {summary.language}</div>}
+                  {summary.llm_checks_performed > 0 && <div style={{ color: '#c4b5fd' }}>LLM Checks: {summary.llm_checks_performed}</div>}
+                  {summary.started_at && <div style={{ color: '#666' }}>Started: {formatTime(summary.started_at)}</div>}
+                  {summary.last_update && <div style={{ color: '#666' }}>Last Update: {formatTime(summary.last_update)}</div>}
+                  {summary.risk_policy_version && <div style={{ color: '#555' }}>Policy: {summary.risk_policy_version}</div>}
                 </div>
               </div>
             )}
@@ -569,6 +704,12 @@ const RealtimeSessionPanel = ({
                   <div>Raw audio: {retentionPolicy.raw_audio_storage || 'not_persisted'}</div>
                   <div>Active TTL: {retentionPolicy.active_session_retention_seconds}s</div>
                   <div>Ended TTL: {retentionPolicy.ended_session_retention_seconds}s</div>
+                  {Array.isArray(retentionPolicy.stored_derived_fields) && retentionPolicy.stored_derived_fields.length > 0 && (
+                    <div style={{ marginTop: '4px' }}>
+                      <span style={{ color: '#666' }}>Stored fields: </span>
+                      {retentionPolicy.stored_derived_fields.join(', ')}
+                    </div>
+                  )}
                 </div>
               </div>
             )}
