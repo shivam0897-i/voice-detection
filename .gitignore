@@ -31,3 +31,9 @@ dist-ssr
 .trae/
 .windsurf/
 
+# Local analysis/debug artifacts
+.claude/
+legacy-analysis-*.json
+realtime-analysis-*.json
+test_backend.py
+
