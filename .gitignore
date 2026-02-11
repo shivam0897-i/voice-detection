@@ -37,3 +37,14 @@ legacy-analysis-*.json
 realtime-analysis-*.json
 test_backend.py
 
+# Environment secrets
+.env
+.env.*
+!.env.example
+
+# Local scan/report outputs
+security_best_practices_report.md
+
+# Local/agent skill packs (not product code)
+.github/skills/
+
