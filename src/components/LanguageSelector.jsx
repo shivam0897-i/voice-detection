@@ -3,7 +3,10 @@ import { createPortal } from 'react-dom';
 import { ChevronDown, Globe, Check } from 'lucide-react';
 
 const LANGUAGES = [
+    { code: "Auto", native: "Auto-detect" },
     { code: "English", native: "English" },
+    { code: "Hinglish", native: "Hinglish" },
+    { code: "Mixed", native: "Mixed" },
     { code: "Tamil", native: "\u0BA4\u0BAE\u0BBF\u0BB4\u0BCD" },
     { code: "Hindi", native: "\u0939\u093F\u0928\u094D\u0926\u0940" },
     { code: "Malayalam", native: "\u0D2E\u0D32\u0D2F\u0D3E\u0D33\u0D02" },

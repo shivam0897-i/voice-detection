@@ -65,13 +65,14 @@ function arrayBufferToBase64(arrayBuffer) {
   return btoa(binary);
 }
 
-export async function createRealtimeChunksFromFile(file, chunkDurationSec = 1.6) {
+export async function createRealtimeChunksFromFile(file, chunkDurationSec = 3.0) {
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
   if (!AudioContextClass) {
     throw new Error('Web Audio API is not supported in this browser.');
   }
 
-  const audioContext = new AudioContextClass();
+  // L1 fix: force 16kHz to match mic chunks and reduce upload bandwidth
+  const audioContext = new AudioContextClass({ sampleRate: 16000 });
 
   try {
     const fileArrayBuffer = await file.arrayBuffer();

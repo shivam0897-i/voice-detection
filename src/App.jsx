@@ -93,7 +93,7 @@ function App() {
   const [mode, setMode] = useState(MODES.REALTIME);
   const [inputSource, setInputSource] = useState('mic'); // 'mic' or 'file'
   const [file, setFile] = useState(null);
-  const [language, setLanguage] = useState('English');
+  const [language, setLanguage] = useState('Auto');
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -126,6 +126,7 @@ function App() {
   const micStartTimeRef = useRef(null);
   const wsRef = useRef(null);
   const httpQueueRef = useRef(Promise.resolve());
+  const httpInflightRef = useRef(0); // M10 fix: bounded HTTP queue
 
   const isRealtime = mode === MODES.REALTIME;
   const isMicMode = isRealtime && inputSource === 'mic';
@@ -594,6 +595,12 @@ function App() {
           onUpdate: handleChunkUpdate,
           onError(err) {
             console.warn('WebSocket error:', err);
+            const msg = err?.message || '';
+            // Surface server-side timeout/duration errors to user
+            if (msg.includes('Idle timeout') || msg.includes('max duration')) {
+              setRealtimeError(msg);
+              addLog(`WS_TIMEOUT: ${msg}`);
+            }
             if (wsHandle && !wsFailed) {
               wsFailed = true;
               addLog('WS_FAILED - falling back to HTTP');
@@ -635,9 +642,17 @@ function App() {
             language,
           });
         } else {
-          // HTTP fallback — serialized via promise chain
+          // HTTP fallback — serialized via promise chain (M10: bounded to 3 inflight)
+          if (httpInflightRef.current >= 3) {
+            addLog('CHUNK_SKIPPED: HTTP queue full');
+            return;
+          }
+          httpInflightRef.current += 1;
           httpQueueRef.current = httpQueueRef.current.then(async () => {
-            if (stopRequestedRef.current || !micSessionRef.current) return;
+            if (stopRequestedRef.current || !micSessionRef.current) {
+              httpInflightRef.current = Math.max(0, httpInflightRef.current - 1);
+              return;
+            }
             try {
               const update = await analyzeRealtimeChunk(micSessionRef.current, {
                 audioFormat: 'wav',
@@ -648,6 +663,8 @@ function App() {
             } catch (chunkErr) {
               console.warn('HTTP chunk failed:', chunkErr);
               addLog(`CHUNK_ERROR: ${chunkErr?.message || 'unknown'}`);
+            } finally {
+              httpInflightRef.current = Math.max(0, httpInflightRef.current - 1);
             }
           });
         }

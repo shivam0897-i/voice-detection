@@ -148,7 +148,7 @@ export async function fileToBase64(file) {
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = () => {
-      // Remove the data URL prefix (e.g., "data:audio/mp3;base64,")
+      // Remove the data URL prefix (e.g., "data:audio/wav;base64,")
       const base64 = reader.result.split(',')[1];
       resolve(base64);
     };
@@ -163,7 +163,7 @@ export async function fileToBase64(file) {
  * @returns {Promise<Object>} API Response
  * @throws {Error} If the API call fails or returns an error status.
  */
-export async function detectVoice(audioFile, language = 'English') {
+export async function detectVoice(audioFile, language = 'Auto') {
   if (audioFile.size > MAX_FILE_SIZE_BYTES) {
     throw new Error(`File too large. Maximum size is ${MAX_FILE_SIZE_MB}MB.`);
   }
@@ -181,7 +181,7 @@ export async function detectVoice(audioFile, language = 'English') {
   });
 }
 
-export async function startRealtimeSession(language = 'English') {
+export async function startRealtimeSession(language = 'Auto') {
   return fetchRealtimeWithFallback('/session/start', {
     method: 'POST',
     body: JSON.stringify({ language }),
@@ -249,7 +249,7 @@ function buildWsUrl(sessionId) {
     wsBase = rootBase.replace(/^http/, 'ws');
   }
 
-  return `${wsBase}/v1/session/${sessionId}/stream?api_key=${encodeURIComponent(API_CONFIG.API_KEY)}`;
+  return `${wsBase}/v1/session/${sessionId}/stream`;
 }
 
 export function isRealtimeWebSocketEnabled() {
@@ -261,6 +261,7 @@ export function isRealtimeWebSocketEnabled() {
  *
  * Includes onopen gating: chunks sent before the connection is open are
  * buffered in a pending queue and flushed automatically upon open.
+ * L5 fix: auto-reconnects up to 3 times on unexpected close.
  *
  * @param {string} sessionId - active session ID
  * @param {{ onUpdate?: Function, onError?: Function, onClose?: Function, onOpen?: Function }} handlers
@@ -268,58 +269,81 @@ export function isRealtimeWebSocketEnabled() {
  */
 export function createRealtimeWebSocket(sessionId, { onUpdate, onError, onClose, onOpen } = {}) {
   const url = buildWsUrl(sessionId);
-  const ws = new WebSocket(url);
   const pendingQueue = [];
   let isOpen = false;
   let rejectReady = null;
+  let ws = null;
+  let reconnectAttempts = 0;
+  let intentionalClose = false;
+  const MAX_RECONNECT = 3;
 
-  /** Promise that resolves when the WS connection is open, rejects on early failure or close. */
-  const ready = new Promise((resolve, reject) => {
-    rejectReady = reject;
+  function connect() {
+    ws = new WebSocket(url);
 
     ws.onopen = () => {
       isOpen = true;
-      rejectReady = null; // no longer needed
-      // Flush any chunks that were queued before connection opened
+      reconnectAttempts = 0;
+      rejectReady = null;
+      // L4 fix: send API key as first message instead of URL query param
+      ws.send(JSON.stringify({ type: 'auth', api_key: API_CONFIG.API_KEY }));
       while (pendingQueue.length > 0) {
         ws.send(JSON.stringify(pendingQueue.shift()));
       }
       onOpen?.();
-      resolve();
+      resolveReady?.();
     };
 
-    // If the socket errors before opening, reject the ready promise
     ws.onerror = () => {
       if (!isOpen) {
-        reject(new Error('WebSocket failed to connect'));
+        rejectReady?.(new Error('WebSocket failed to connect'));
         rejectReady = null;
       }
       onError?.(new Error('WebSocket connection error'));
     };
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.status === 'error') {
+          onError?.(new Error(data.message || 'WebSocket chunk error'));
+        } else {
+          onUpdate?.(data);
+        }
+      } catch (parseErr) {
+        onError?.(parseErr);
+      }
+    };
+
+    ws.onclose = (event) => {
+      if (rejectReady) {
+        rejectReady(new Error('WebSocket closed before open'));
+        rejectReady = null;
+      }
+      isOpen = false;
+
+      // L5 fix: auto-reconnect on unexpected close
+      // Skip reconnect for server-side duration/idle timeouts (code 1000 with reason)
+      const isServerTimeout = event.code === 1000 && (
+        event.reason?.includes('Max duration') || event.reason?.includes('Idle timeout')
+      );
+      if (!intentionalClose && !isServerTimeout && reconnectAttempts < MAX_RECONNECT) {
+        reconnectAttempts += 1;
+        const delay = Math.min(1000 * reconnectAttempts, 3000);
+        console.warn(`WebSocket closed unexpectedly, reconnecting in ${delay}ms (attempt ${reconnectAttempts}/${MAX_RECONNECT})`);
+        setTimeout(() => connect(), delay);
+      } else {
+        onClose?.(event);
+      }
+    };
+  }
+
+  let resolveReady;
+  const ready = new Promise((resolve, reject) => {
+    resolveReady = resolve;
+    rejectReady = reject;
   });
 
-  ws.onmessage = (event) => {
-    try {
-      const data = JSON.parse(event.data);
-      if (data.status === 'error') {
-        onError?.(new Error(data.message || 'WebSocket chunk error'));
-      } else {
-        onUpdate?.(data);
-      }
-    } catch (parseErr) {
-      onError?.(parseErr);
-    }
-  };
-
-  ws.onclose = (event) => {
-    // If socket closes before open, reject the ready promise to prevent hangs
-    if (rejectReady) {
-      rejectReady(new Error('WebSocket closed before open'));
-      rejectReady = null;
-    }
-    isOpen = false;
-    onClose?.(event);
-  };
+  connect();
 
   return {
     /**
@@ -337,8 +361,9 @@ export function createRealtimeWebSocket(sessionId, { onUpdate, onError, onClose,
     },
     /** Gracefully close the connection. */
     close() {
+      intentionalClose = true;
       isOpen = false;
-      if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
+      if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
         ws.close();
       }
     },

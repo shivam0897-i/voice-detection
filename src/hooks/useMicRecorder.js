@@ -2,6 +2,9 @@
 import { MIC_CHUNK_DURATION_MS } from '../constants';
 import { blobToWavBase64 } from '../utils/realtimeAudio';
 
+/** RMS threshold below which a chunk is considered silence and skipped (M9 fix). */
+const SILENCE_RMS_THRESHOLD = 0.01;
+
 /**
  * Custom hook for live microphone recording with auto-chunking.
  *
@@ -112,6 +115,25 @@ export default function useMicRecorder() {
       recorder.ondataavailable = async (event) => {
         if (event.data && event.data.size > 0 && onChunkRef.current) {
           try {
+            // M9 fix: check RMS to skip silence chunks
+            const arrayBuffer = await event.data.arrayBuffer();
+            const checkCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+            try {
+              const audioBuffer = await checkCtx.decodeAudioData(arrayBuffer.slice(0));
+              const samples = audioBuffer.getChannelData(0);
+              let sumSq = 0;
+              for (let i = 0; i < samples.length; i++) sumSq += samples[i] * samples[i];
+              const rms = Math.sqrt(sumSq / samples.length);
+              if (rms < SILENCE_RMS_THRESHOLD) {
+                // Skip silent chunk — no useful audio
+                return;
+              }
+            } catch {
+              // If decoding fails, still send the chunk (non-blocking)
+            } finally {
+              checkCtx.close().catch(() => {});
+            }
+
             const base64 = await blobToWavBase64(event.data);
             if (base64 && onChunkRef.current) {
               onChunkRef.current(base64);
