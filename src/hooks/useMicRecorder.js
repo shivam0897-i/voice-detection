@@ -1,6 +1,6 @@
 ﻿import { useState, useRef, useCallback, useEffect } from 'react';
 import { MIC_CHUNK_DURATION_MS } from '../constants';
-import { blobToWavBase64 } from '../utils/realtimeAudio';
+import { pcmToWavBase64 } from '../utils/realtimeAudio';
 
 /** RMS threshold below which a chunk is considered silence and skipped (M9 fix). */
 const SILENCE_RMS_THRESHOLD = 0.01;
@@ -8,9 +8,16 @@ const SILENCE_RMS_THRESHOLD = 0.01;
 /**
  * Custom hook for live microphone recording with auto-chunking.
  *
- * Captures audio from the user's microphone using `getUserMedia` + `MediaRecorder`,
- * records in slices of `MIC_CHUNK_DURATION_MS`, and converts each slice to a
- * WAV base64 string ready for the backend API.
+ * Captures audio from the user's microphone using `getUserMedia` + Web Audio
+ * ScriptProcessorNode, accumulates raw PCM samples, and converts each
+ * chunk directly to a WAV base64 string ready for the backend API.
+ *
+ * WHY ScriptProcessorNode instead of MediaRecorder?
+ *   MediaRecorder.start(timeslice) with WebM/Opus produces chunks where only
+ *   the first has a valid container header. Subsequent chunks are continuation
+ *   clusters that AudioContext.decodeAudioData() cannot decode, causing every
+ *   chunk after the first to be silently dropped. ScriptProcessorNode gives us
+ *   raw PCM samples directly, bypassing all codec issues.
  *
  * IMPORTANT: `startRecording` **throws** on any pre-recording failure
  * (insecure context, missing API, permission denied, no mic) so that callers
@@ -27,33 +34,61 @@ export default function useMicRecorder() {
   const [isRecording, setIsRecording] = useState(false);
   const [error, setError] = useState(null);
 
-  const mediaRecorderRef = useRef(null);
   const streamRef = useRef(null);
-  const onChunkRef = useRef(null);
   const audioContextRef = useRef(null);
+  const processorRef = useRef(null);
+  const sourceRef = useRef(null);
+  const onChunkRef = useRef(null);
+  const pcmBufferRef = useRef([]);
+  const pcmSampleCountRef = useRef(0);
 
-  /** Release all browser resources (stream tracks, AudioContext, MediaRecorder). */
+  /** Release all browser resources (stream tracks, AudioContext, processor). */
   const stopAllTracks = useCallback(() => {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
-      try {
-        mediaRecorderRef.current.stop();
-      } catch {
-        /* MediaRecorder may already be stopped */
-      }
+    if (processorRef.current) {
+      try { processorRef.current.disconnect(); } catch { /* ok */ }
+      processorRef.current.onaudioprocess = null;
+      processorRef.current = null;
     }
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((t) => t.stop());
-      streamRef.current = null;
+    if (sourceRef.current) {
+      try { sourceRef.current.disconnect(); } catch { /* ok */ }
+      sourceRef.current = null;
     }
     if (audioContextRef.current) {
       audioContextRef.current.close().catch(() => {});
       audioContextRef.current = null;
     }
-    mediaRecorderRef.current = null;
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
+    }
+    pcmBufferRef.current = [];
+    pcmSampleCountRef.current = 0;
   }, []);
 
   /** Stop recording, clear chunk callback, and release resources. */
   const stopRecording = useCallback(() => {
+    // Flush any remaining buffered samples before stopping
+    if (onChunkRef.current && pcmSampleCountRef.current > 0 && audioContextRef.current) {
+      const sampleRate = audioContextRef.current.sampleRate;
+      const allSamples = new Float32Array(pcmSampleCountRef.current);
+      let offset = 0;
+      for (const buf of pcmBufferRef.current) {
+        allSamples.set(buf, offset);
+        offset += buf.length;
+      }
+      // Only send if not silence and long enough (>0.5s)
+      if (allSamples.length > sampleRate * 0.5) {
+        let sumSq = 0;
+        for (let i = 0; i < allSamples.length; i += 1) sumSq += allSamples[i] * allSamples[i];
+        const rms = Math.sqrt(sumSq / allSamples.length);
+        if (rms >= SILENCE_RMS_THRESHOLD) {
+          try {
+            const base64 = pcmToWavBase64(allSamples, sampleRate);
+            if (base64) onChunkRef.current(base64);
+          } catch { /* non-critical */ }
+        }
+      }
+    }
     onChunkRef.current = null;
     stopAllTracks();
     setIsRecording(false);
@@ -62,6 +97,7 @@ export default function useMicRecorder() {
   // Cleanup on unmount
   useEffect(() => {
     return () => {
+      onChunkRef.current = null;
       stopAllTracks();
     };
   }, [stopAllTracks]);
@@ -96,65 +132,81 @@ export default function useMicRecorder() {
           echoCancellation: true,
           noiseSuppression: true,
           autoGainControl: true,
-          sampleRate: 16000,
+          sampleRate: 16000, // hint — browser may use native rate
         },
       });
       streamRef.current = stream;
       onChunkRef.current = onChunk;
 
-      // Determine a supported mimeType
-      const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
-        ? 'audio/webm;codecs=opus'
-        : MediaRecorder.isTypeSupported('audio/webm')
-          ? 'audio/webm'
-          : '';
+      // Create AudioContext — request 16kHz but accept whatever the browser gives
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      const audioContext = new AudioCtx({ sampleRate: 16000 });
+      audioContextRef.current = audioContext;
+      const sampleRate = audioContext.sampleRate;
 
-      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
-      mediaRecorderRef.current = recorder;
+      const source = audioContext.createMediaStreamSource(stream);
+      sourceRef.current = source;
 
-      recorder.ondataavailable = async (event) => {
-        if (event.data && event.data.size > 0 && onChunkRef.current) {
+      // ScriptProcessorNode for raw PCM capture
+      // (deprecated but universally supported; AudioWorklet requires separate file)
+      const bufferSize = 4096;
+      const processor = audioContext.createScriptProcessor(bufferSize, 1, 1);
+      processorRef.current = processor;
+
+      const samplesPerChunk = Math.floor(sampleRate * (MIC_CHUNK_DURATION_MS / 1000));
+      pcmBufferRef.current = [];
+      pcmSampleCountRef.current = 0;
+
+      processor.onaudioprocess = (e) => {
+        if (!onChunkRef.current) return;
+
+        const inputData = e.inputBuffer.getChannelData(0);
+        pcmBufferRef.current.push(new Float32Array(inputData));
+        pcmSampleCountRef.current += inputData.length;
+
+        if (pcmSampleCountRef.current >= samplesPerChunk) {
+          // Flatten accumulated buffers into one array
+          const allSamples = new Float32Array(pcmSampleCountRef.current);
+          let offset = 0;
+          for (const buf of pcmBufferRef.current) {
+            allSamples.set(buf, offset);
+            offset += buf.length;
+          }
+          pcmBufferRef.current = [];
+          pcmSampleCountRef.current = 0;
+
+          // RMS silence check (M9 fix)
+          let sumSq = 0;
+          for (let i = 0; i < allSamples.length; i += 1) {
+            sumSq += allSamples[i] * allSamples[i];
+          }
+          const rms = Math.sqrt(sumSq / allSamples.length);
+
+          if (rms < SILENCE_RMS_THRESHOLD) {
+            return; // Skip silent chunk — no useful audio
+          }
+
+          // Convert raw PCM directly to WAV base64 (no codec decode needed)
           try {
-            // M9 fix: check RMS to skip silence chunks
-            const arrayBuffer = await event.data.arrayBuffer();
-            const checkCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
-            try {
-              const audioBuffer = await checkCtx.decodeAudioData(arrayBuffer.slice(0));
-              const samples = audioBuffer.getChannelData(0);
-              let sumSq = 0;
-              for (let i = 0; i < samples.length; i++) sumSq += samples[i] * samples[i];
-              const rms = Math.sqrt(sumSq / samples.length);
-              if (rms < SILENCE_RMS_THRESHOLD) {
-                // Skip silent chunk — no useful audio
-                return;
-              }
-            } catch {
-              // If decoding fails, still send the chunk (non-blocking)
-            } finally {
-              checkCtx.close().catch(() => {});
-            }
-
-            const base64 = await blobToWavBase64(event.data);
+            const base64 = pcmToWavBase64(allSamples, sampleRate);
             if (base64 && onChunkRef.current) {
               onChunkRef.current(base64);
             }
-          } catch (conversionError) {
-            console.warn('Chunk conversion failed, skipping:', conversionError);
+          } catch (convErr) {
+            console.warn('PCM→WAV conversion failed, skipping chunk:', convErr);
           }
         }
       };
 
-      recorder.onerror = () => {
-        setError('Recording error occurred.');
-        stopRecording();
-      };
+      // Connect: source → processor → silent gain → destination
+      // ScriptProcessorNode requires a path to destination for onaudioprocess to fire.
+      // GainNode at 0 prevents mic audio from playing through speakers (feedback).
+      const silentGain = audioContext.createGain();
+      silentGain.gain.value = 0;
+      source.connect(processor);
+      processor.connect(silentGain);
+      silentGain.connect(audioContext.destination);
 
-      recorder.onstop = () => {
-        setIsRecording(false);
-      };
-
-      // Start recording with timeslice for auto-chunking
-      recorder.start(MIC_CHUNK_DURATION_MS);
       setIsRecording(true);
     } catch (err) {
       // Translate known error types to friendly messages

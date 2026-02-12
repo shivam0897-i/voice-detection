@@ -114,8 +114,50 @@ export async function createRealtimeChunksFromFile(file, chunkDurationSec = 3.0)
 }
 
 /**
+ * Convert raw PCM Float32 mono samples to WAV base64 string.
+ * Used by useMicRecorder for direct PCM → WAV conversion (no codec decode needed).
+ *
+ * @param {Float32Array} samples — mono PCM samples in [-1, 1]
+ * @param {number} sampleRate — sample rate in Hz
+ * @returns {string} — base64-encoded WAV
+ */
+export function pcmToWavBase64(samples, sampleRate) {
+  const frameCount = samples.length;
+  const channelCount = 1;
+  const blockAlign = channelCount * 2;
+  const byteRate = sampleRate * blockAlign;
+  const dataByteLength = frameCount * blockAlign;
+
+  const wavBuffer = new ArrayBuffer(RIFF_HEADER_SIZE + dataByteLength);
+  const view = new DataView(wavBuffer);
+
+  writeString(view, 0, 'RIFF');
+  view.setUint32(4, 36 + dataByteLength, true);
+  writeString(view, 8, 'WAVE');
+  writeString(view, 12, 'fmt ');
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, channelCount, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, byteRate, true);
+  view.setUint16(32, blockAlign, true);
+  view.setUint16(34, 16, true);
+  writeString(view, 36, 'data');
+  view.setUint32(40, dataByteLength, true);
+
+  let byteOffset = RIFF_HEADER_SIZE;
+  for (let i = 0; i < frameCount; i += 1) {
+    view.setInt16(byteOffset, clampToInt16(samples[i]), true);
+    byteOffset += 2;
+  }
+
+  return arrayBufferToBase64(wavBuffer);
+}
+
+/**
  * Convert a MediaRecorder Blob (webm/ogg) to WAV base64.
- * Used by useMicRecorder to convert mic chunks before sending to the backend.
+ * Used for file-based realtime analysis. NOT used by mic recording
+ * (mic recording uses pcmToWavBase64 via ScriptProcessorNode).
  *
  * @param {Blob} blob — audio blob from MediaRecorder.ondataavailable
  * @returns {Promise<string>} — WAV base64 string
