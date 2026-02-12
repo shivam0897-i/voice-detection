@@ -459,6 +459,7 @@ function App() {
           audioFormat: chunk.audioFormat,
           audioBase64: chunk.audioBase64,
           language,
+          source: 'file',
         });
 
         setRealtimeLatest(update);
@@ -640,6 +641,7 @@ function App() {
             audioFormat: 'wav',
             audioBase64: wavBase64,
             language,
+            source: 'mic',
           });
         } else {
           // HTTP fallback — serialized via promise chain (M10: bounded to 3 inflight)
@@ -658,6 +660,7 @@ function App() {
                 audioFormat: 'wav',
                 audioBase64: wavBase64,
                 language,
+                source: 'mic',
               });
               handleChunkUpdate(update);
             } catch (chunkErr) {
