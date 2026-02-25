@@ -89,6 +89,7 @@ function App() {
   const wsRef = useRef(null);
   const httpQueueRef = useRef(Promise.resolve());
   const httpInflightRef = useRef(0);
+  const resultAreaRef = useRef(null);
 
   // ─── Derived ───
   const isRealtime = mode === MODES.REALTIME;
@@ -98,6 +99,12 @@ function App() {
   // ─── Helpers ───
   const addLog = useCallback((msg) => {
     setLogs((prev) => [...prev.slice(-6), { time: new Date().toLocaleTimeString(), msg }]);
+  }, []);
+
+  const scrollToResults = useCallback(() => {
+    requestAnimationFrame(() => {
+      resultAreaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
   }, []);
 
   const resetRealtimeState = () => {
@@ -201,6 +208,7 @@ function App() {
       setResult(data);
       setResponseTime(elapsed);
       addLog(`LEGACY_DONE: ${data.classification} (${elapsed}s)`);
+      scrollToResults();
       appendHistory({ id: Date.now(), fileName: file.name, language, mode: MODES.LEGACY, classification: data.classification, confidence: data.confidenceScore, time: new Date().toLocaleTimeString(), responseTime: elapsed });
     } catch (err) {
       const msg = err?.message || 'Analysis failed.';
@@ -231,15 +239,14 @@ function App() {
     }
     const elapsed = ((performance.now() - startTime) / 1000).toFixed(2);
     setResponseTime(elapsed);
+    scrollToResults();
     if (summary) {
       appendHistory({ id: Date.now(), fileName: file?.name || 'Live Mic', language, mode: MODES.REALTIME, classification: summary.final_call_label, confidence: Number(summary.max_risk_score || 0) / 100, time: new Date().toLocaleTimeString(), responseTime: elapsed });
       addLog(`RT_DONE: ${summary.final_call_label} (${elapsed}s)`);
     } else {
       addLog(`RT_DONE: NO_SUMMARY (${elapsed}s)`);
     }
-  }, [addLog, language, file]);
-
-  // --- Realtime file analysis ---
+  }, [addLog, language, file, scrollToResults, appendHistory]);  // --- Realtime file analysis ---
   const handleRealtimeAnalyze = async () => {
     if (!file) {
       setRealtimeError('Please select an audio file first.');
@@ -511,6 +518,7 @@ function App() {
         />
 
         {/* Results */}
+        <div ref={resultAreaRef} />
         {!isRealtime && !result && !loading && !error && (
           <div className="empty-state">
             <Shield size={40} strokeWidth={1.2} className="empty-state-icon" aria-hidden="true" />

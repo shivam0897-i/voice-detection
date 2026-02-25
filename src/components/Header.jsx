@@ -1,6 +1,7 @@
+import { memo } from 'react';
 import { Shield } from 'lucide-react';
 
-const Header = ({ backendHealth }) => {
+const Header = memo(function Header({ backendHealth }) {
   const statusClass = !backendHealth
     ? 'checking'
     : backendHealth.status === 'healthy'
@@ -40,6 +41,6 @@ const Header = ({ backendHealth }) => {
       </div>
     </header>
   );
-};
+});
 
 export default Header;

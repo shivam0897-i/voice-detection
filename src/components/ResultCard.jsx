@@ -1,6 +1,7 @@
-﻿import { AlertTriangle, ShieldCheck, Cpu, RefreshCw } from 'lucide-react';
+﻿import { memo } from 'react';
+import { AlertTriangle, ShieldCheck, Cpu, RefreshCw } from 'lucide-react';
 
-const ResultCard = ({ result, loading, error, onRetry }) => {
+const ResultCard = memo(function ResultCard({ result, loading, error, onRetry }) {
   if (loading) {
     return (
       <div className="result-card">
@@ -128,6 +129,6 @@ const ResultCard = ({ result, loading, error, onRetry }) => {
       </div>
     </div>
   );
-};
+});
 
 export default ResultCard;

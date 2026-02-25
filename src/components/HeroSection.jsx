@@ -1,6 +1,8 @@
+import { memo } from 'react';
 import { ShieldCheck, Zap, Globe } from 'lucide-react';
 
-const HeroSection = () => (
+const HeroSection = memo(function HeroSection() {
+  return (
   <section className="hero-section">
     <h2 className="hero-title">
       Detect Voice Fraud<br />Before It&nbsp;Costs&nbsp;You
@@ -24,6 +26,7 @@ const HeroSection = () => (
       </span>
     </div>
   </section>
-);
+  );
+});
 
 export default HeroSection;

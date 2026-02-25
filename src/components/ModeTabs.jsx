@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Radio, Play } from 'lucide-react';
 
 const MODES = {
@@ -5,7 +6,7 @@ const MODES = {
   LEGACY: 'legacy',
 };
 
-const ModeTabs = ({ mode, onModeChange, loading }) => {
+const ModeTabs = memo(function ModeTabs({ mode, onModeChange, loading }) {
   const isRealtime = mode === MODES.REALTIME;
 
   return (
@@ -45,7 +46,7 @@ const ModeTabs = ({ mode, onModeChange, loading }) => {
       </p>
     </div>
   );
-};
+});
 
 export { MODES };
 export default ModeTabs;
