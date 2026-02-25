@@ -3,268 +3,179 @@ import { createPortal } from 'react-dom';
 import { ChevronDown, Globe, Check } from 'lucide-react';
 
 const LANGUAGES = [
-    { code: "Auto", native: "Auto-detect" },
-    { code: "English", native: "English" },
-    { code: "Hinglish", native: "Hinglish" },
-    { code: "Mixed", native: "Mixed" },
-    { code: "Tamil", native: "\u0BA4\u0BAE\u0BBF\u0BB4\u0BCD" },
-    { code: "Hindi", native: "\u0939\u093F\u0928\u094D\u0926\u0940" },
-    { code: "Malayalam", native: "\u0D2E\u0D32\u0D2F\u0D3E\u0D33\u0D02" },
-    { code: "Telugu", native: "\u0C24\u0C46\u0C32\u0C41\u0C17\u0C41" }
+  { code: 'Auto', native: 'Auto-detect' },
+  { code: 'English', native: 'English' },
+  { code: 'Hinglish', native: 'Hinglish' },
+  { code: 'Mixed', native: 'Mixed' },
+  { code: 'Tamil', native: '\u0BA4\u0BAE\u0BBF\u0BB4\u0BCD' },
+  { code: 'Hindi', native: '\u0939\u093F\u0928\u094D\u0926\u0940' },
+  { code: 'Malayalam', native: '\u0D2E\u0D32\u0D2F\u0D3E\u0D33\u0D02' },
+  { code: 'Telugu', native: '\u0C24\u0C46\u0C32\u0C41\u0C17\u0C41' },
 ];
 
-// Inline styles for portal (ensures dark theme works outside React tree)
-const portalStyles = {
-    dropdown: {
-        position: 'absolute',
-        backgroundColor: '#000000',
-        border: '1px solid #ccff00',
-        boxShadow: '0 20px 50px rgba(0,0,0,0.9), 0 0 30px rgba(204, 255, 0, 0.1)',
-        zIndex: 9999,
-        fontFamily: "'JetBrains Mono', monospace",
-        overflow: 'hidden',
-    },
-    option: {
-        padding: '14px 16px',
-        paddingLeft: '16px',
-        cursor: 'pointer',
-        color: '#888888',
-        fontSize: '0.9rem',
-        fontWeight: 500,
-        textTransform: 'uppercase',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        borderBottom: '1px solid #222',
-        borderLeft: '3px solid transparent',
-        transition: 'all 0.15s ease',
-        backgroundColor: '#000000',
-    },
-    optionSelected: {
-        backgroundColor: '#111111',
-        color: '#ccff00',
-        borderLeft: '3px solid #ccff00',
-    },
-    optionHover: {
-        backgroundColor: '#ccff00',
-        color: '#000000',
-        borderLeft: '3px solid #ccff00',
-    },
-    langInfo: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: '12px',
-    },
-    langIcon: {
-        width: '28px',
-        height: '28px',
-        borderRadius: '4px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: '0.75rem',
-        fontWeight: 'bold',
-        fontFamily: "'JetBrains Mono', monospace",
-    },
-    native: {
-        fontSize: '0.7rem',
-        color: '#666',
-        marginLeft: '8px',
-    },
-};
-
 const LanguageSelector = ({ selectedLine, onSelect }) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const [hoveredLang, setHoveredLang] = useState(null);
-    const [coords, setCoords] = useState({ top: 0, left: 0, width: 0 });
-    const triggerRef = useRef(null);
-    const dropdownRef = useRef(null);
-    const currentLang = selectedLine || "English";
-    const currentLangData = LANGUAGES.find(l => l.code === currentLang) || LANGUAGES[0];
+  const [isOpen, setIsOpen] = useState(false);
+  const [hoveredIndex, setHoveredIndex] = useState(-1);
+  const [coords, setCoords] = useState({ top: 0, left: 0, width: 0 });
+  const triggerRef = useRef(null);
+  const dropdownRef = useRef(null);
 
-    const toggleOpen = (e) => {
-        e.stopPropagation();
-        if (!isOpen) {
-            updateCoords();
-        }
-        setIsOpen(!isOpen);
+  const currentLang = selectedLine || 'English';
+  const currentData = LANGUAGES.find((l) => l.code === currentLang) || LANGUAGES[0];
+
+  const updateCoords = () => {
+    if (!triggerRef.current) return;
+    const r = triggerRef.current.getBoundingClientRect();
+    setCoords({
+      top: r.bottom + window.scrollY + 4,
+      left: r.left + window.scrollX,
+      width: Math.max(r.width, 260),
+    });
+  };
+
+  const toggleOpen = (e) => {
+    e.stopPropagation();
+    if (!isOpen) updateCoords();
+    setIsOpen((v) => !v);
+    setHoveredIndex(-1);
+  };
+
+  const handleSelect = (code) => {
+    onSelect(code);
+    setIsOpen(false);
+    setHoveredIndex(-1);
+  };
+
+  // Close on scroll / resize
+  useEffect(() => {
+    if (!isOpen) return;
+    const close = () => setIsOpen(false);
+    window.addEventListener('scroll', close, { capture: true });
+    window.addEventListener('resize', close);
+    return () => {
+      window.removeEventListener('scroll', close, { capture: true });
+      window.removeEventListener('resize', close);
     };
+  }, [isOpen]);
 
-    const updateCoords = () => {
-        if (triggerRef.current) {
-            const rect = triggerRef.current.getBoundingClientRect();
-            setCoords({
-                top: rect.bottom + window.scrollY + 5,
-                left: rect.left + window.scrollX,
-                width: Math.max(rect.width, 280) // Minimum width for better display
-            });
-        }
-    };
-
-    useEffect(() => {
-        const handleScroll = () => {
-            if (isOpen) setIsOpen(false);
-        };
-        window.addEventListener('scroll', handleScroll, { capture: true });
-        window.addEventListener('resize', handleScroll);
-
-        return () => {
-            window.removeEventListener('scroll', handleScroll, { capture: true });
-            window.removeEventListener('resize', handleScroll);
-        };
-    }, [isOpen]);
-
-    useEffect(() => {
-        const handleClickOutside = (e) => {
-            if (
-                triggerRef.current &&
-                !triggerRef.current.contains(e.target) &&
-                dropdownRef.current &&
-                !dropdownRef.current.contains(e.target)
-            ) {
-                setIsOpen(false);
-            }
-        };
-
-        if (isOpen) {
-            document.addEventListener('mousedown', handleClickOutside);
-        }
-
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [isOpen]);
-
-    useEffect(() => {
-        const handleKeyDown = (e) => {
-            if (!isOpen) return;
-
-            const currentIndex = LANGUAGES.findIndex(l => l.code === (hoveredLang || currentLang));
-
-            switch (e.key) {
-                case 'ArrowDown': {
-                    e.preventDefault();
-                    const nextIndex = (currentIndex + 1) % LANGUAGES.length;
-                    setHoveredLang(LANGUAGES[nextIndex].code);
-                    break;
-                }
-                case 'ArrowUp': {
-                    e.preventDefault();
-                    const prevIndex = (currentIndex - 1 + LANGUAGES.length) % LANGUAGES.length;
-                    setHoveredLang(LANGUAGES[prevIndex].code);
-                    break;
-                }
-                case 'Enter':
-                    e.preventDefault();
-                    if (hoveredLang) {
-                        onSelect(hoveredLang);
-                        setIsOpen(false);
-                    }
-                    break;
-                case 'Escape':
-                    setIsOpen(false);
-                    break;
-            }
-        };
-
-        document.addEventListener('keydown', handleKeyDown);
-        return () => document.removeEventListener('keydown', handleKeyDown);
-    }, [isOpen, hoveredLang, currentLang, onSelect]);
-
-    const handleSelect = (lang) => {
-        onSelect(lang);
+  // Close on outside click
+  useEffect(() => {
+    if (!isOpen) return;
+    const handler = (e) => {
+      if (
+        triggerRef.current && !triggerRef.current.contains(e.target) &&
+        dropdownRef.current && !dropdownRef.current.contains(e.target)
+      ) {
         setIsOpen(false);
-        setHoveredLang(null);
+      }
     };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [isOpen]);
 
-    const getOptionStyle = (lang) => {
-        const isSelected = lang.code === currentLang;
-        const isHovered = lang.code === hoveredLang;
-
-        return {
-            ...portalStyles.option,
-            ...(isSelected ? portalStyles.optionSelected : {}),
-            ...(isHovered ? portalStyles.optionHover : {}),
-            borderBottom: lang.code === LANGUAGES[LANGUAGES.length - 1].code ? 'none' : '1px solid #222',
-        };
+  // Keyboard navigation
+  useEffect(() => {
+    if (!isOpen) return;
+    const handler = (e) => {
+      switch (e.key) {
+        case 'ArrowDown':
+          e.preventDefault();
+          setHoveredIndex((i) => (i + 1) % LANGUAGES.length);
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          setHoveredIndex((i) => (i - 1 + LANGUAGES.length) % LANGUAGES.length);
+          break;
+        case 'Enter':
+          e.preventDefault();
+          if (hoveredIndex >= 0) handleSelect(LANGUAGES[hoveredIndex].code);
+          break;
+        case 'Escape':
+          setIsOpen(false);
+          break;
+      }
     };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [isOpen, hoveredIndex]);
 
-    return (
-        <div className="lang-selector-container">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', color: '#888', fontSize: '0.7rem' }}>
-                <Globe size={12} aria-hidden="true" />
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", textTransform: 'uppercase' }}>Language</span>
-            </div>
+  return (
+    <div className="lang-selector-wrapper">
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+        <Globe size={12} aria-hidden="true" style={{ color: 'var(--color-text-muted)' }} />
+        <span className="card-label" style={{ margin: 0 }}>Language</span>
+      </div>
 
-            <button
-                ref={triggerRef}
-                onClick={toggleOpen}
-                className="lang-trigger"
-                aria-haspopup="listbox"
-                aria-expanded={isOpen}
-                aria-label={`Select language. Current: ${currentLang}`}
-                style={{
-                    borderColor: isOpen ? '#ccff00' : '#fff',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                }}
-            >
-                <span style={{ flex: 1, textAlign: 'left' }}>{currentLang}</span>
-                <span style={{ fontSize: '0.7rem', color: '#666' }}>{currentLangData.native}</span>
-                <ChevronDown
-                    size={16}
-                    aria-hidden="true"
-                    style={{
-                        transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                        transition: 'transform 0.3s ease',
-                        marginLeft: '8px',
-                    }}
-                />
-            </button>
+      <button
+        ref={triggerRef}
+        onClick={toggleOpen}
+        className="lang-trigger"
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+        aria-label={`Select language. Current: ${currentLang}`}
+      >
+        <span>{currentLang}</span>
+        <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{currentData.native}</span>
+        <ChevronDown
+          size={16}
+          aria-hidden="true"
+          style={{
+            transform: isOpen ? 'rotate(180deg)' : 'rotate(0)',
+            transition: 'transform 0.2s ease',
+            marginLeft: 'auto',
+          }}
+        />
+      </button>
 
-            {isOpen && createPortal(
+      {isOpen &&
+        createPortal(
+          <div
+            ref={dropdownRef}
+            role="listbox"
+            aria-label="Select language"
+            className="lang-dropdown"
+            style={{
+              position: 'absolute',
+              top: coords.top,
+              left: coords.left,
+              width: coords.width,
+              zIndex: 9999,
+            }}
+          >
+            {LANGUAGES.map((lang, idx) => {
+              const isSelected = lang.code === currentLang;
+              const isHovered = idx === hoveredIndex;
+              return (
                 <div
-                    ref={dropdownRef}
-                    role="listbox"
-                    aria-label="Select language"
-                    style={{
-                        ...portalStyles.dropdown,
-                        top: coords.top,
-                        left: coords.left,
-                        width: coords.width,
-                    }}
+                  key={lang.code}
+                  role="option"
+                  aria-selected={isSelected}
+                  className={`lang-option${isSelected ? ' selected' : ''}${isHovered ? ' selected' : ''}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleSelect(lang.code);
+                  }}
+                  onMouseEnter={() => setHoveredIndex(idx)}
+                  onMouseLeave={() => setHoveredIndex(-1)}
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}
                 >
-                    {LANGUAGES.map((lang) => (
-                        <div
-                            key={lang.code}
-                            role="option"
-                            aria-selected={lang.code === currentLang}
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                handleSelect(lang.code);
-                            }}
-                            onMouseEnter={() => setHoveredLang(lang.code)}
-                            onMouseLeave={() => setHoveredLang(null)}
-                            style={getOptionStyle(lang)}
-                        >
-                            <div style={portalStyles.langInfo}>
-                                <span>{lang.code}</span>
-                                <span style={{
-                                    ...portalStyles.native,
-                                    color: hoveredLang === lang.code ? '#333' : '#666',
-                                }}>{lang.native}</span>
-                            </div>
-                            {lang.code === currentLang && (
-                                <Check size={16} style={{ color: hoveredLang === lang.code ? '#000' : '#ccff00' }} />
-                            )}
-                        </div>
-                    ))}
-                </div>,
-                document.body
-            )}
-        </div>
-    );
+                  <span>
+                    {lang.code}
+                    <span style={{ marginLeft: '8px', fontSize: '0.75rem', opacity: 0.6 }}>{lang.native}</span>
+                  </span>
+                  {isSelected && <Check size={14} aria-hidden="true" />}
+                </div>
+              );
+            })}
+          </div>,
+          document.body,
+        )}
+    </div>
+  );
 };
 
 export default LanguageSelector;

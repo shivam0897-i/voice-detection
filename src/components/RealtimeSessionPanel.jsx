@@ -14,123 +14,87 @@
 } from 'lucide-react';
 
 const RISK_COLORS = {
-  LOW: '#22c55e',
-  MEDIUM: '#eab308',
+  LOW: 'var(--color-success)',
+  MEDIUM: 'var(--color-warning)',
   HIGH: '#fb923c',
-  CRITICAL: '#ef4444',
+  CRITICAL: 'var(--color-danger)',
 };
 
 const LABEL_COLORS = {
-  SAFE: '#22c55e',
-  SPAM: '#eab308',
-  FRAUD: '#ef4444',
-  UNCERTAIN: '#38bdf8',
+  SAFE: 'var(--color-success)',
+  SPAM: 'var(--color-warning)',
+  FRAUD: 'var(--color-danger)',
+  UNCERTAIN: 'var(--color-info)',
 };
 
 const VOICE_LABEL_COLORS = {
-  AI_GENERATED: '#ef4444',
-  HUMAN: '#22c55e',
-  UNCERTAIN: '#38bdf8',
+  AI_GENERATED: 'var(--color-danger)',
+  HUMAN: 'var(--color-success)',
+  UNCERTAIN: 'var(--color-info)',
 };
 
-const SEVERITY_COLORS = {
-  low: '#84cc16',
-  medium: '#eab308',
-  high: '#fb923c',
-  critical: '#ef4444',
+const SEVERITY_MAP = {
+  low: { color: 'var(--color-success)', cls: 'success' },
+  medium: { color: 'var(--color-warning)', cls: 'warning' },
+  high: { color: '#fb923c', cls: 'warning' },
+  critical: { color: 'var(--color-danger)', cls: 'danger' },
 };
 
-function getRiskColor(riskLevel) {
-  return RISK_COLORS[riskLevel] || '#888';
-}
-
-function getLabelColor(label) {
-  return LABEL_COLORS[label] || '#888';
-}
-
-function getVoiceColor(label) {
-  return VOICE_LABEL_COLORS[label] || '#888';
-}
-
-function getSeverityColor(severity) {
-  if (!severity) {
-    return '#f97316';
-  }
-  return SEVERITY_COLORS[String(severity).toLowerCase()] || '#f97316';
-}
+function getRiskColor(level) { return RISK_COLORS[level] || 'var(--color-text-muted)'; }
+function getLabelColor(label) { return LABEL_COLORS[label] || 'var(--color-text-muted)'; }
+function getVoiceColor(label) { return VOICE_LABEL_COLORS[label] || 'var(--color-text-muted)'; }
+function getSeverity(sev) { return SEVERITY_MAP[String(sev || '').toLowerCase()] || SEVERITY_MAP.high; }
 
 function formatTime(value) {
-  if (!value) {
-    return '--';
-  }
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return String(value);
-  }
-  return date.toLocaleTimeString();
+  if (!value) return '--';
+  const d = new Date(value);
+  return Number.isNaN(d.getTime()) ? String(value) : d.toLocaleTimeString();
 }
 
-function asList(value) {
-  return Array.isArray(value) ? value : [];
-}
+function asList(v) { return Array.isArray(v) ? v : []; }
 
+/** Horizontal metric bar */
 function MetricBar({ label, value, color }) {
-  const safeValue = Math.max(0, Math.min(100, Number(value || 0)));
-
+  const v = Math.max(0, Math.min(100, Number(value || 0)));
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: '#888' }}>{label}</span>
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.85rem', color, fontWeight: 700 }}>
-          {safeValue.toFixed(1)}
-        </span>
+    <div className="metric-card">
+      <div className="metric-bar-label">
+        <span>{label}</span>
+        <span style={{ color }}>{v.toFixed(1)}</span>
       </div>
-      <div style={{ height: '10px', background: '#111', border: '1px solid #1f1f1f' }}>
-        <div
-          style={{
-            height: '100%',
-            width: `${safeValue}%`,
-            background: color,
-            boxShadow: `0 0 10px ${color}66`,
-            transition: 'width 0.25s ease-out',
-          }}
-        />
+      <div className="metric-bar-track">
+        <div className="metric-bar-fill" style={{ width: `${v}%`, background: color }} />
       </div>
     </div>
   );
 }
 
+/** Tag pill */
+function Tag({ children, variant = '' }) {
+  return <span className={`tag ${variant}`}>{children}</span>;
+}
+
+/** Contribution list for explainability */
 function ContributionList({ contributions = [] }) {
-  if (!Array.isArray(contributions) || contributions.length === 0) {
-    return null;
-  }
+  if (!Array.isArray(contributions) || contributions.length === 0) return null;
 
   return (
-    <div style={{ marginTop: '16px' }}>
-      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: '#888', marginBottom: '8px' }}>
-        SIGNAL CONTRIBUTIONS
-      </div>
-      <div style={{ display: 'grid', gap: '8px' }}>
+    <div style={{ marginTop: 'var(--space-4)' }}>
+      <div className="metric-label">Signal Contributions</div>
+      <div style={{ display: 'grid', gap: 'var(--space-2)' }}>
         {contributions.map((item) => (
           <div
             key={`${item.signal}-${item.weight}`}
-            style={{
-              border: '1px solid #222',
-              background: '#0a0a0a',
-              padding: '10px',
-              display: 'grid',
-              gridTemplateColumns: '1fr auto auto',
-              gap: '10px',
-              alignItems: 'center',
-            }}
+            className="metric-card"
+            style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', gap: 'var(--space-3)', alignItems: 'center', padding: 'var(--space-3)' }}
           >
-            <span style={{ color: '#ddd', fontFamily: 'var(--font-mono)', fontSize: '0.75rem' }}>
+            <span style={{ color: 'var(--color-text)', fontFamily: 'var(--font-mono)', fontSize: '0.72rem' }}>
               {String(item.signal || '').toUpperCase()}
             </span>
-            <span style={{ color: '#888', fontFamily: 'var(--font-mono)', fontSize: '0.72rem' }}>
+            <span style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-mono)', fontSize: '0.68rem' }}>
               w:{Number(item.weight || 0).toFixed(2)}
             </span>
-            <span style={{ color: '#ccff00', fontFamily: 'var(--font-mono)', fontSize: '0.72rem' }}>
+            <span style={{ color: 'var(--color-accent)', fontFamily: 'var(--font-mono)', fontSize: '0.68rem' }}>
               {Number(item.weighted_score || 0).toFixed(1)}
             </span>
           </div>
@@ -171,214 +135,151 @@ const RealtimeSessionPanel = ({
   const statusLabel = String(sessionStatus || 'idle').toUpperCase();
   const statusColor =
     sessionStatus === 'streaming'
-      ? '#22c55e'
+      ? 'var(--color-success)'
       : sessionStatus === 'starting' || sessionStatus === 'ending'
-        ? '#eab308'
+        ? 'var(--color-warning)'
         : sessionStatus === 'error'
-          ? '#ef4444'
-          : '#888';
+          ? 'var(--color-danger)'
+          : 'var(--color-text-muted)';
 
-  const icon =
+  const headerIcon =
     callLabel === 'FRAUD'
-      ? <ShieldAlert size={22} aria-hidden="true" />
+      ? <ShieldAlert size={20} aria-hidden="true" />
       : callLabel === 'SAFE'
-        ? <ShieldCheck size={22} aria-hidden="true" />
-        : <ShieldQuestion size={22} aria-hidden="true" />;
+        ? <ShieldCheck size={20} aria-hidden="true" />
+        : <ShieldQuestion size={20} aria-hidden="true" />;
 
   const liveAlert = latestUpdate?.alert?.triggered
-    ? {
-      ...latestUpdate.alert,
-      timestamp: latestUpdate.timestamp,
-      risk_score: latestUpdate.risk_score,
-      risk_level: latestUpdate.risk_level,
-    }
+    ? { ...latestUpdate.alert, timestamp: latestUpdate.timestamp, risk_score: latestUpdate.risk_score, risk_level: latestUpdate.risk_level }
     : alerts[0] || null;
 
-  const severityColor = getSeverityColor(liveAlert?.severity);
-
-  const languageAnalysis = latestUpdate?.language_analysis;
-  const keywordHits = asList(languageAnalysis?.keyword_hits).slice(0, 6);
-  const semanticFlags = asList(languageAnalysis?.semantic_flags).slice(0, 6);
-  const behaviourSignals = asList(languageAnalysis?.session_behaviour_signals).slice(0, 6);
-  const transcript = String(languageAnalysis?.transcript || '').trim();
+  const langAnalysis = latestUpdate?.language_analysis;
+  const keywordHits = asList(langAnalysis?.keyword_hits).slice(0, 6);
+  const semanticFlags = asList(langAnalysis?.semantic_flags).slice(0, 6);
+  const behaviourSignals = asList(langAnalysis?.session_behaviour_signals).slice(0, 6);
+  const transcript = String(langAnalysis?.transcript || '').trim();
 
   return (
-    <div
-      style={{
-        border: '1px solid var(--color-border)',
-        background: '#030303',
-        position: 'relative',
-      }}
-    >
-      <div
-        style={{
-          padding: '18px 20px',
-          borderBottom: '1px solid #1f1f1f',
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: '12px 20px',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: callLabelColor }}>
-          {icon}
+    <div className="rt-panel" role="region" aria-label="Realtime session analysis" aria-live="polite">
+      {/* ─── Header ─── */}
+      <div className="rt-panel-header">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', color: callLabelColor }}>
+          {headerIcon}
           <div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: '#888' }}>
-              REALTIME CALL LABEL
-            </div>
-            <div style={{ fontSize: '1.1rem', fontWeight: 700 }}>{callLabel}</div>
+            <div className="metric-label" style={{ marginBottom: 0 }}>Call Label</div>
+            <div style={{ fontSize: '1.05rem', fontWeight: 700 }}>{callLabel}</div>
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-4)', flexWrap: 'wrap' }}>
           <div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: '#888' }}>SESSION</div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: '#ddd' }}>
+            <div className="metric-label" style={{ marginBottom: 2 }}>Session</div>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--color-text)' }}>
               {sessionId ? String(sessionId).slice(0, 8).toUpperCase() : '--'}
-            </div>
+            </span>
           </div>
           <div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: '#888' }}>STATUS</div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: statusColor }}>{statusLabel}</div>
+            <div className="metric-label" style={{ marginBottom: 2 }}>Status</div>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: statusColor }}>{statusLabel}</span>
           </div>
           <div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: '#888' }}>CHUNKS</div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: '#ddd' }}>
+            <div className="metric-label" style={{ marginBottom: 2 }}>Chunks</div>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--color-text)' }}>
               {chunkProgress.total > 0 ? `${chunkProgress.current}/${chunkProgress.total}` : chunkProgress.current > 0 ? `${chunkProgress.current} (live)` : '0'}
-            </div>
+            </span>
           </div>
         </div>
       </div>
 
-      <div style={{ padding: '20px', display: 'grid', gap: '20px' }}>
-        <div style={{ border: '1px solid #222', background: '#070707', padding: '14px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
+      {/* ─── Body ─── */}
+      <div className="rt-panel-body">
+        {/* Voice Authenticity */}
+        <div className="metric-card">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
             <div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: '#888' }}>VOICE AUTHENTICITY</div>
-              <div style={{ color: voiceColor, fontFamily: 'var(--font-mono)', fontSize: '1rem', fontWeight: 700 }}>
-                {voiceClassification}
-              </div>
+              <div className="metric-label">Voice Authenticity</div>
+              <div className="metric-value" style={{ color: voiceColor }}>{voiceClassification}</div>
             </div>
             <div style={{ textAlign: 'right' }}>
-              <div style={{ color: '#888', fontFamily: 'var(--font-mono)', fontSize: '0.7rem' }}>CONFIDENCE</div>
-              <div style={{ color: voiceColor, fontFamily: 'var(--font-mono)', fontSize: '0.85rem' }}>
+              <div className="metric-label">Confidence</div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.85rem', color: voiceColor }}>
                 {(voiceConfidence * 100).toFixed(0)}%
               </div>
             </div>
             {summary && (
-              <div style={{ color: '#aaa', fontFamily: 'var(--font-mono)', fontSize: '0.68rem' }}>
-                AI chunks: {summary.voice_ai_chunks ?? '--'} | Human chunks: {summary.voice_human_chunks ?? '--'}
-              </div>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>
+                AI chunks: {summary.voice_ai_chunks ?? '--'} · Human: {summary.voice_human_chunks ?? '--'}
+              </span>
             )}
           </div>
         </div>
 
+        {/* Error */}
         {error && (
-          <div
-            role="alert"
-            style={{
-              border: '1px solid #7f1d1d',
-              background: 'rgba(239, 68, 68, 0.08)',
-              color: '#ef4444',
-              padding: '12px',
-              fontFamily: 'var(--font-mono)',
-              fontSize: '0.8rem',
-            }}
-          >
-            <AlertTriangle size={14} aria-hidden="true" style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+          <div className="mic-error" role="alert">
+            <AlertTriangle size={14} aria-hidden="true" />
             {error}
           </div>
         )}
 
-        {liveAlert && (
-          <div
-            style={{
-              border: `1px solid ${severityColor}`,
-              background: `linear-gradient(120deg, ${severityColor}22 0%, #140b0b 60%, #070707 100%)`,
-              padding: '14px',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-              <Siren size={16} aria-hidden="true" color={severityColor} />
-              <span style={{ color: severityColor, fontFamily: 'var(--font-mono)', fontSize: '0.74rem' }}>
-                INSTANT THREAT ALERT {liveAlert.alert_type ? `| ${liveAlert.alert_type}` : ''}
-              </span>
-              <span style={{ marginLeft: 'auto', color: '#888', fontFamily: 'var(--font-mono)', fontSize: '0.7rem' }}>
-                {formatTime(liveAlert.timestamp)}
-              </span>
-            </div>
-            <div style={{ color: '#f5f5f5', fontFamily: 'var(--font-mono)', fontSize: '0.78rem', lineHeight: 1.5 }}>
-              {liveAlert.reason_summary || 'Suspicious escalation detected. Please verify caller identity immediately.'}
-            </div>
-            {liveAlert.recommended_action && (
-              <div
-                style={{
-                  marginTop: '8px',
-                  borderTop: '1px dashed #613333',
-                  paddingTop: '8px',
-                  color: '#fecaca',
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '0.74rem',
-                }}
-              >
-                Recommended action: {liveAlert.recommended_action}
+        {/* Live Alert */}
+        {liveAlert && (() => {
+          const sev = getSeverity(liveAlert.severity);
+          return (
+            <div className="alert-item" style={{ borderColor: sev.color, background: `linear-gradient(120deg, ${sev.color}18 0%, var(--color-surface) 60%)` }}>
+              <Siren size={16} aria-hidden="true" style={{ color: sev.color, marginTop: 2, flexShrink: 0 }} />
+              <div className="alert-content">
+                <div className="alert-title" style={{ color: sev.color }}>
+                  Threat Alert {liveAlert.alert_type ? `· ${liveAlert.alert_type}` : ''}
+                </div>
+                <div className="alert-detail" style={{ color: 'var(--color-text)' }}>
+                  {liveAlert.reason_summary || 'Suspicious escalation detected. Verify caller identity.'}
+                </div>
+                {liveAlert.recommended_action && (
+                  <div className="alert-detail" style={{ marginTop: 'var(--space-2)', color: 'var(--color-info)' }}>
+                    ▸ {liveAlert.recommended_action}
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        )}
+              <span className="alert-time">{formatTime(liveAlert.timestamp)}</span>
+            </div>
+          );
+        })()}
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '12px' }}>
-          <div style={{ border: '1px solid #222', background: '#070707', padding: '14px' }}>
-            <MetricBar label="RISK SCORE" value={latestUpdate?.risk_score || 0} color={riskColor} />
-          </div>
-          <div style={{ border: '1px solid #222', background: '#070707', padding: '14px' }}>
-            <MetricBar label="CPI" value={latestUpdate?.cpi || 0} color="#38bdf8" />
-          </div>
-          <div style={{ border: '1px solid #222', background: '#070707', padding: '14px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: '#888' }}>RISK LEVEL</span>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.82rem', color: riskColor }}>{riskLevel}</span>
-            </div>
-            <div style={{ color: '#bbb', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', lineHeight: 1.6 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Timer size={12} aria-hidden="true" />
-                {formatTime(latestUpdate?.timestamp)}
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
-                <Radar size={12} aria-hidden="true" />
-                {latestUpdate?.model_uncertain ? 'UNCERTAINTY MODE ACTIVE' : 'MODEL CONFIDENCE NORMAL'}
-              </div>
+        {/* Risk Metrics Grid */}
+        <div className="metric-grid">
+          <MetricBar label="RISK SCORE" value={latestUpdate?.risk_score || 0} color={riskColor} />
+          <MetricBar label="CPI" value={latestUpdate?.cpi || 0} color="var(--color-info)" />
+          <div className="metric-card">
+            <div className="metric-label">Risk Level</div>
+            <div className="metric-value" style={{ color: riskColor, marginBottom: 'var(--space-2)' }}>{riskLevel}</div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: 'var(--color-text-muted)', display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <span><Timer size={11} aria-hidden="true" style={{ verticalAlign: 'middle', marginRight: 4 }} />{formatTime(latestUpdate?.timestamp)}</span>
+              <span><Radar size={11} aria-hidden="true" style={{ verticalAlign: 'middle', marginRight: 4 }} />{latestUpdate?.model_uncertain ? 'Uncertainty active' : 'Normal confidence'}</span>
             </div>
           </div>
         </div>
 
-        <div style={{ border: '1px solid #222', background: '#070707', padding: '14px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: '#888' }}>RISK TIMELINE</span>
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: '#888' }}>
-              {timeline.length} points
-            </span>
+        {/* Risk Timeline */}
+        <div className="metric-card">
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-3)' }}>
+            <span className="metric-label" style={{ marginBottom: 0 }}>Risk Timeline</span>
+            <span className="metric-label" style={{ marginBottom: 0 }}>{timeline.length} points</span>
           </div>
           {timeline.length === 0 ? (
-            <div style={{ color: '#555', fontFamily: 'var(--font-mono)', fontSize: '0.75rem', padding: '14px 0' }}>
-              Waiting for first chunk result...
+            <div style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', padding: 'var(--space-3) 0' }}>
+              Waiting for first chunk…
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: `repeat(${timeline.length}, minmax(6px, 1fr))`, gap: '4px', alignItems: 'end', height: '84px' }}>
-              {timeline.map((point, index) => {
-                const color = getRiskColor(point.risk_level);
+            <div className="timeline-bar-container" style={{ height: '80px' }}>
+              {timeline.map((point, i) => {
+                const c = getRiskColor(point.risk_level);
                 return (
                   <div
-                    key={`${point.timestamp || index}-${point.chunks_processed || index}`}
+                    key={`${point.timestamp || i}-${point.chunks_processed || i}`}
+                    className="timeline-bar"
                     title={`Chunk ${point.chunks_processed}: risk ${point.risk_score}, cpi ${Number(point.cpi || 0).toFixed(1)}`}
-                    style={{
-                      height: `${Math.max(8, Number(point.risk_score || 0))}%`,
-                      background: color,
-                      boxShadow: `0 0 8px ${color}66`,
-                      opacity: 0.85,
-                      transition: 'height 0.2s ease-out',
-                    }}
+                    style={{ height: `${Math.max(8, Number(point.risk_score || 0))}%`, background: c }}
                   />
                 );
               })}
@@ -386,92 +287,73 @@ const RealtimeSessionPanel = ({
           )}
         </div>
 
-        {languageAnalysis && (
-          <div style={{ border: '1px solid #222', background: '#070707', padding: '14px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-              <MessageSquareText size={14} aria-hidden="true" color="#8ecae6" />
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: '#888' }}>CONVERSATIONAL INTELLIGENCE</span>
-              <span style={{ marginLeft: 'auto', color: '#888', fontFamily: 'var(--font-mono)', fontSize: '0.68rem' }}>
-                ASR: {languageAnalysis.asr_engine || 'unavailable'}
-                {languageAnalysis.transcript_confidence > 0 && (
-                  <span style={{ marginLeft: '8px', color: '#6ee7b7' }}>
-                    ({(languageAnalysis.transcript_confidence * 100).toFixed(0)}% conf)
+        {/* Conversational Intelligence */}
+        {langAnalysis && (
+          <div className="metric-card">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-3)' }}>
+              <MessageSquareText size={14} aria-hidden="true" color="var(--color-data)" />
+              <span className="metric-label" style={{ marginBottom: 0 }}>Conversational Intelligence</span>
+              <span style={{ marginLeft: 'auto', fontFamily: 'var(--font-mono)', fontSize: '0.62rem', color: 'var(--color-text-muted)' }}>
+                ASR: {langAnalysis.asr_engine || 'n/a'}
+                {langAnalysis.transcript_confidence > 0 && (
+                  <span style={{ marginLeft: 'var(--space-2)', color: 'var(--color-success)' }}>
+                    ({(langAnalysis.transcript_confidence * 100).toFixed(0)}%)
                   </span>
                 )}
               </span>
             </div>
 
-            <div style={{ color: '#d4d4d4', fontFamily: 'var(--font-mono)', fontSize: '0.75rem', lineHeight: 1.45 }}>
-              {transcript || 'Transcript unavailable. Risk model still evaluated acoustic + behavioral signals.'}
+            {/* Transcript */}
+            <div className="transcript-text">
+              {transcript || 'Transcript unavailable. Risk model evaluated acoustic + behavioral signals.'}
             </div>
 
-            {languageAnalysis.llm_semantic_used && (
-              <div style={{
-                marginTop: '8px',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '4px 10px',
-                border: '1px solid #7c3aed',
-                background: 'rgba(124, 58, 237, 0.1)',
-                fontFamily: 'var(--font-mono)',
-                fontSize: '0.66rem',
-                color: '#c4b5fd',
-              }}>
-                <span style={{ color: '#a78bfa' }}>LLM</span>
-                {languageAnalysis.llm_semantic_model && <span>{languageAnalysis.llm_semantic_model}</span>}
-                {languageAnalysis.llm_semantic_confidence > 0 && (
-                  <span style={{ color: '#6ee7b7' }}>({(languageAnalysis.llm_semantic_confidence * 100).toFixed(0)}%)</span>
-                )}
+            {/* LLM badge */}
+            {langAnalysis.llm_semantic_used && (
+              <div style={{ marginTop: 'var(--space-3)', display: 'inline-flex' }}>
+                <Tag variant="info">
+                  LLM {langAnalysis.llm_semantic_model || ''}
+                  {langAnalysis.llm_semantic_confidence > 0 && ` (${(langAnalysis.llm_semantic_confidence * 100).toFixed(0)}%)`}
+                </Tag>
               </div>
             )}
 
-            {(languageAnalysis.keyword_score > 0 || languageAnalysis.semantic_score > 0 || languageAnalysis.behaviour_score > 0) && (
-              <div style={{ marginTop: '10px', display: 'grid', gap: '4px' }}>
-                <div style={{ color: '#888', fontFamily: 'var(--font-mono)', fontSize: '0.68rem', marginBottom: '2px' }}>SIGNAL SCORES</div>
-                {[{ label: 'Keyword', val: languageAnalysis.keyword_score, color: '#38bdf8' },
-                { label: 'Semantic', val: languageAnalysis.semantic_score, color: '#c084fc' },
-                { label: 'Behaviour', val: languageAnalysis.behaviour_score, color: '#4ade80' }]
-                  .filter((s) => s.val > 0)
-                  .map((s) => (
-                    <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontFamily: 'var(--font-mono)', fontSize: '0.68rem' }}>
-                      <span style={{ color: '#888', width: '72px' }}>{s.label}</span>
-                      <div style={{ flex: 1, height: '4px', background: '#222', position: 'relative' }}>
-                        <div style={{ width: `${Math.min(s.val, 100)}%`, height: '100%', background: s.color, transition: 'width 0.3s ease' }} />
+            {/* Signal scores */}
+            {(langAnalysis.keyword_score > 0 || langAnalysis.semantic_score > 0 || langAnalysis.behaviour_score > 0) && (
+              <div style={{ marginTop: 'var(--space-4)' }}>
+                <div className="metric-label">Signal Scores</div>
+                <div style={{ display: 'grid', gap: 'var(--space-2)' }}>
+                  {[
+                    { label: 'Keyword', val: langAnalysis.keyword_score, color: 'var(--color-info)' },
+                    { label: 'Semantic', val: langAnalysis.semantic_score, color: 'var(--color-data)' },
+                    { label: 'Behaviour', val: langAnalysis.behaviour_score, color: 'var(--color-success)' },
+                  ]
+                    .filter((s) => s.val > 0)
+                    .map((s) => (
+                      <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', fontFamily: 'var(--font-mono)', fontSize: '0.68rem' }}>
+                        <span style={{ width: 64, color: 'var(--color-text-muted)' }}>{s.label}</span>
+                        <div className="metric-bar-track" style={{ flex: 1, height: 4 }}>
+                          <div className="metric-bar-fill" style={{ width: `${Math.min(s.val, 100)}%`, background: s.color }} />
+                        </div>
+                        <span style={{ width: 28, textAlign: 'right', color: s.color }}>{s.val}</span>
                       </div>
-                      <span style={{ color: s.color, width: '30px', textAlign: 'right' }}>{s.val}</span>
-                    </div>
-                  ))
-                }
+                    ))}
+                </div>
               </div>
             )}
 
+            {/* Tags */}
             {(keywordHits.length > 0 || semanticFlags.length > 0 || behaviourSignals.length > 0) && (
-              <div style={{ marginTop: '10px', display: 'grid', gap: '8px' }}>
+              <div style={{ marginTop: 'var(--space-4)', display: 'grid', gap: 'var(--space-3)' }}>
                 {keywordHits.length > 0 && (
                   <div>
-                    <div style={{ color: '#888', fontFamily: 'var(--font-mono)', fontSize: '0.68rem', marginBottom: '6px' }}>
-                      KEYWORDS
+                    <div className="metric-label">Keywords</div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
+                      {keywordHits.map((k) => <Tag key={k}>{k}</Tag>)}
                     </div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                      {keywordHits.map((item) => (
-                        <span key={item} style={{ border: '1px solid #334155', padding: '3px 7px', fontFamily: 'var(--font-mono)', fontSize: '0.66rem', color: '#cbd5e1' }}>{item}</span>
-                      ))}
-                    </div>
-
-                    {Array.isArray(languageAnalysis.keyword_categories) && languageAnalysis.keyword_categories.length > 0 && (
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '6px' }}>
-                        {languageAnalysis.keyword_categories.map((cat) => (
-                          <span key={cat} style={{
-                            border: '1px solid #854d0e',
-                            background: 'rgba(234, 179, 8, 0.08)',
-                            padding: '2px 6px',
-                            fontFamily: 'var(--font-mono)',
-                            fontSize: '0.6rem',
-                            color: '#fbbf24',
-                            textTransform: 'uppercase',
-                          }}>{cat}</span>
-                        ))}
+                    {Array.isArray(langAnalysis.keyword_categories) && langAnalysis.keyword_categories.length > 0 && (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-1)', marginTop: 'var(--space-2)' }}>
+                        {langAnalysis.keyword_categories.map((cat) => <Tag key={cat} variant="warning">{cat}</Tag>)}
                       </div>
                     )}
                   </div>
@@ -479,26 +361,18 @@ const RealtimeSessionPanel = ({
 
                 {semanticFlags.length > 0 && (
                   <div>
-                    <div style={{ color: '#888', fontFamily: 'var(--font-mono)', fontSize: '0.68rem', marginBottom: '6px' }}>
-                      SEMANTIC FLAGS
-                    </div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                      {semanticFlags.map((item) => (
-                        <span key={item} style={{ border: '1px solid #4c1d95', padding: '3px 7px', fontFamily: 'var(--font-mono)', fontSize: '0.66rem', color: '#ddd6fe' }}>{item}</span>
-                      ))}
+                    <div className="metric-label">Semantic Flags</div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
+                      {semanticFlags.map((f) => <Tag key={f} variant="info">{f}</Tag>)}
                     </div>
                   </div>
                 )}
 
                 {behaviourSignals.length > 0 && (
                   <div>
-                    <div style={{ color: '#888', fontFamily: 'var(--font-mono)', fontSize: '0.68rem', marginBottom: '6px' }}>
-                      BEHAVIOUR SIGNALS
-                    </div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                      {behaviourSignals.map((item) => (
-                        <span key={item} style={{ border: '1px solid #14532d', padding: '3px 7px', fontFamily: 'var(--font-mono)', fontSize: '0.66rem', color: '#bbf7d0' }}>{item}</span>
-                      ))}
+                    <div className="metric-label">Behaviour Signals</div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
+                      {behaviourSignals.map((b) => <Tag key={b} variant="success">{b}</Tag>)}
                     </div>
                   </div>
                 )}
@@ -507,203 +381,127 @@ const RealtimeSessionPanel = ({
           </div>
         )}
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: '12px' }}>
-          <div style={{ border: '1px solid #222', background: '#070707', padding: '14px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-              <Siren size={14} aria-hidden="true" color="#fb923c" />
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: '#888' }}>LIVE ALERTS</span>
-            </div>
-            {alerts.length === 0 ? (
-              <div style={{ color: '#555', fontFamily: 'var(--font-mono)', fontSize: '0.75rem' }}>No alerts in this session.</div>
-            ) : (
-              <div style={{ display: 'grid', gap: '8px', maxHeight: '180px', overflowY: 'auto' }}>
-                {alerts.map((alertItem, index) => (
-                  <div
-                    key={`${alertItem.timestamp || index}-${alertItem.alert_type || 'alert'}`}
-                    style={{
-                      border: '1px solid #2c2c2c',
-                      background: '#0b0b0b',
-                      padding: '10px',
-                    }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <span style={{ color: '#f97316', fontFamily: 'var(--font-mono)', fontSize: '0.72rem' }}>
-                          {alertItem.alert_type || 'ALERT'}
-                        </span>
-                        {alertItem.severity && (
-                          <span style={{
-                            fontSize: '0.6rem',
-                            fontFamily: 'var(--font-mono)',
-                            padding: '2px 6px',
-                            background: alertItem.severity === 'critical' ? 'rgba(239,68,68,0.2)' :
-                              alertItem.severity === 'high' ? 'rgba(249,115,22,0.2)' :
-                                alertItem.severity === 'medium' ? 'rgba(234,179,8,0.2)' :
-                                  'rgba(100,116,139,0.2)',
-                            color: alertItem.severity === 'critical' ? '#ef4444' :
-                              alertItem.severity === 'high' ? '#f97316' :
-                                alertItem.severity === 'medium' ? '#eab308' :
-                                  '#94a3b8',
-                            textTransform: 'uppercase',
-                          }}>
-                            {alertItem.severity}
-                          </span>
-                        )}
-                      </div>
-                      <span style={{ color: '#777', fontFamily: 'var(--font-mono)', fontSize: '0.68rem' }}>
-                        {formatTime(alertItem.timestamp)}
-                      </span>
-                    </div>
-                    {(alertItem.risk_score != null || alertItem.risk_level || alertItem.call_label) && (
-                      <div style={{
-                        display: 'flex', gap: '10px', marginBottom: '5px',
-                        fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: '#666',
-                      }}>
-                        {alertItem.risk_score != null && (
-                          <span>RISK: <span style={{ color: alertItem.risk_score >= 75 ? '#ef4444' : alertItem.risk_score >= 50 ? '#f97316' : '#eab308' }}>{alertItem.risk_score}</span></span>
-                        )}
-                        {alertItem.risk_level && (
-                          <span>LVL: <span style={{ color: '#8ecae6' }}>{alertItem.risk_level.toUpperCase()}</span></span>
-                        )}
-                        {alertItem.call_label && (
-                          <span>LABEL: <span style={{ color: '#a78bfa' }}>{alertItem.call_label.toUpperCase()}</span></span>
-                        )}
-                      </div>
-                    )}
-                    <div style={{ color: '#bbb', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', lineHeight: 1.45 }}>
-                      {alertItem.reason_summary || 'No reason summary provided.'}
-                    </div>
-                    {alertItem.recommended_action && (
-                      <div style={{
-                        marginTop: '6px',
-                        color: '#38bdf8',
-                        fontFamily: 'var(--font-mono)',
-                        fontSize: '0.68rem',
-                        lineHeight: 1.4,
-                        borderTop: '1px solid #1a1a1a',
-                        paddingTop: '6px',
-                      }}>
-                        ▸ {alertItem.recommended_action}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
+        {/* Alerts Feed */}
+        <div className="metric-card">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-3)' }}>
+            <Siren size={14} aria-hidden="true" color="var(--color-warning)" />
+            <span className="metric-label" style={{ marginBottom: 0 }}>Live Alerts</span>
           </div>
-
-          {latestUpdate?.explainability && (
-            <div style={{ border: '1px solid #222', background: '#070707', padding: '14px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                <Activity size={14} aria-hidden="true" color="#38bdf8" />
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: '#888' }}>EXPLAINABILITY</span>
-              </div>
-              <div style={{ color: '#d4d4d4', fontFamily: 'var(--font-mono)', fontSize: '0.75rem', lineHeight: 1.5 }}>
-                {latestUpdate.explainability.summary || 'No summary provided.'}
-              </div>
-
-              {Array.isArray(latestUpdate.explainability.top_indicators) && latestUpdate.explainability.top_indicators.length > 0 && (
-                <div style={{ marginTop: '10px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                  {latestUpdate.explainability.top_indicators.slice(0, 5).map((item) => (
-                    <span
-                      key={item}
-                      style={{
-                        border: '1px solid #264653',
-                        color: '#8ecae6',
-                        background: '#07141a',
-                        padding: '4px 8px',
-                        fontFamily: 'var(--font-mono)',
-                        fontSize: '0.68rem',
-                      }}
-                    >
-                      {item}
-                    </span>
-                  ))}
-                </div>
-              )}
-
-              <ContributionList contributions={latestUpdate.explainability.signal_contributions} />
-
-              {latestUpdate.explainability.uncertainty_note && (
-                <div style={{
-                  marginTop: '10px',
-                  padding: '8px 10px',
-                  border: '1px solid #854d0e',
-                  background: 'rgba(234, 179, 8, 0.06)',
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '0.7rem',
-                  color: '#fbbf24',
-                  lineHeight: 1.4,
-                }}>
-                  ⚠ {latestUpdate.explainability.uncertainty_note}
-                </div>
-              )}
+          {alerts.length === 0 ? (
+            <div style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-mono)', fontSize: '0.72rem' }}>
+              No alerts in this session.
             </div>
-          )}
-
-          {latestUpdate?.evidence && (
-            <div style={{ border: '1px solid #222', background: '#070707', padding: '14px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                <AudioWaveform size={14} aria-hidden="true" color="#84cc16" />
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: '#888' }}>AUDIO EVIDENCE</span>
-              </div>
-              <div style={{ display: 'grid', gap: '8px' }}>
-                {asList(latestUpdate.evidence.audio_patterns).slice(0, 5).map((item) => (
-                  <div key={item} style={{ border: '1px solid #273014', background: '#0b1106', padding: '6px 8px', fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: '#d9f99d' }}>
-                    {item}
+          ) : (
+            <div style={{ display: 'grid', gap: 'var(--space-2)', maxHeight: 200, overflowY: 'auto' }}>
+              {alerts.map((a, i) => {
+                const sev = getSeverity(a.severity);
+                return (
+                  <div key={`${a.timestamp || i}-${a.alert_type || 'alert'}`} className="alert-item">
+                    <div className="alert-severity-dot" style={{ background: sev.color }} />
+                    <div className="alert-content">
+                      <div className="alert-title">
+                        {a.alert_type || 'ALERT'}
+                        {a.severity && <Tag variant={sev.cls} style={{ marginLeft: 'var(--space-2)' }}>{a.severity}</Tag>}
+                      </div>
+                      {(a.risk_score != null || a.risk_level || a.call_label) && (
+                        <div className="alert-detail">
+                          {a.risk_score != null && `Risk: ${a.risk_score} `}
+                          {a.risk_level && `· ${a.risk_level} `}
+                          {a.call_label && `· ${a.call_label}`}
+                        </div>
+                      )}
+                      <div className="alert-detail" style={{ color: 'var(--color-text-secondary)' }}>
+                        {a.reason_summary || 'No details.'}
+                      </div>
+                      {a.recommended_action && (
+                        <div className="alert-detail" style={{ color: 'var(--color-info)', marginTop: 2 }}>▸ {a.recommended_action}</div>
+                      )}
+                    </div>
+                    <span className="alert-time">{formatTime(a.timestamp)}</span>
                   </div>
-                ))}
-              </div>
+                );
+              })}
             </div>
           )}
         </div>
 
+        {/* Explainability */}
+        {latestUpdate?.explainability && (
+          <div className="metric-card">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-3)' }}>
+              <Activity size={14} aria-hidden="true" color="var(--color-info)" />
+              <span className="metric-label" style={{ marginBottom: 0 }}>Explainability</span>
+            </div>
+            <p style={{ fontSize: '0.82rem', lineHeight: 1.55, color: 'var(--color-text)', margin: '0 0 var(--space-3)' }}>
+              {latestUpdate.explainability.summary || 'No summary provided.'}
+            </p>
+
+            {Array.isArray(latestUpdate.explainability.top_indicators) && latestUpdate.explainability.top_indicators.length > 0 && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
+                {latestUpdate.explainability.top_indicators.slice(0, 5).map((ind) => (
+                  <Tag key={ind} variant="accent">{ind}</Tag>
+                ))}
+              </div>
+            )}
+
+            <ContributionList contributions={latestUpdate.explainability.signal_contributions} />
+
+            {latestUpdate.explainability.uncertainty_note && (
+              <div className="result-guidance" style={{ marginTop: 'var(--space-3)' }}>
+                <div className="result-guidance-text">⚠ {latestUpdate.explainability.uncertainty_note}</div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Audio Evidence */}
+        {latestUpdate?.evidence && (
+          <div className="metric-card">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-3)' }}>
+              <AudioWaveform size={14} aria-hidden="true" color="var(--color-success)" />
+              <span className="metric-label" style={{ marginBottom: 0 }}>Audio Evidence</span>
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
+              {asList(latestUpdate.evidence.audio_patterns).slice(0, 5).map((p) => (
+                <Tag key={p} variant="success">{p}</Tag>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Summary + Retention */}
         {(summary || retentionPolicy) && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '12px' }}>
+          <div className="metric-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))' }}>
             {summary && (
-              <div style={{ border: '1px solid #222', background: '#070707', padding: '14px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                  <Sparkles size={14} aria-hidden="true" color="#fbbf24" />
-                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: '#888' }}>
-                    SESSION SUMMARY
-                  </span>
+              <div className="summary-card">
+                <div className="summary-card-title">
+                  <Sparkles size={14} aria-hidden="true" style={{ verticalAlign: 'middle', marginRight: 'var(--space-2)' }} />
+                  Session Summary
                 </div>
-                <div style={{ display: 'grid', gap: '6px', fontFamily: 'var(--font-mono)', fontSize: '0.72rem' }}>
-                  <div style={{ color: '#ddd' }}>
-                    Final: <span style={{ color: getLabelColor(summary.final_call_label) }}>{summary.final_call_label}</span>
-                  </div>
-                  <div style={{ color: '#ddd' }}>
-                    Voice: <span style={{ color: getVoiceColor(summary.final_voice_classification || 'UNCERTAIN') }}>{summary.final_voice_classification || 'UNCERTAIN'}</span> ({(Number(summary.final_voice_confidence || 0) * 100).toFixed(0)}%)
-                  </div>
-                  <div style={{ color: '#bbb' }}>Max AI Confidence: {(Number(summary.max_voice_ai_confidence || 0) * 100).toFixed(0)}%</div>
-                  <div style={{ color: '#bbb' }}>Chunks: {summary.chunks_processed}</div>
-                  <div style={{ color: '#bbb' }}>Alerts: {summary.alerts_triggered}</div>
-                  <div style={{ color: '#bbb' }}>Max Risk: {summary.max_risk_score}</div>
-                  <div style={{ color: '#bbb' }}>Max CPI: {Number(summary.max_cpi || 0).toFixed(1)}</div>
-                  {summary.language && <div style={{ color: '#bbb' }}>Language: {summary.language}</div>}
-                  {summary.llm_checks_performed > 0 && <div style={{ color: '#c4b5fd' }}>LLM Checks: {summary.llm_checks_performed}</div>}
-                  {summary.started_at && <div style={{ color: '#666' }}>Started: {formatTime(summary.started_at)}</div>}
-                  {summary.last_update && <div style={{ color: '#666' }}>Last Update: {formatTime(summary.last_update)}</div>}
-                  {summary.risk_policy_version && <div style={{ color: '#555' }}>Policy: {summary.risk_policy_version}</div>}
+                <div style={{ display: 'grid', gap: 'var(--space-2)', fontFamily: 'var(--font-mono)', fontSize: '0.72rem' }}>
+                  <div>Final: <span style={{ color: getLabelColor(summary.final_call_label) }}>{summary.final_call_label}</span></div>
+                  <div>Voice: <span style={{ color: getVoiceColor(summary.final_voice_classification || 'UNCERTAIN') }}>{summary.final_voice_classification || 'UNCERTAIN'}</span> ({(Number(summary.final_voice_confidence || 0) * 100).toFixed(0)}%)</div>
+                  <div style={{ color: 'var(--color-text-secondary)' }}>Max AI Conf: {(Number(summary.max_voice_ai_confidence || 0) * 100).toFixed(0)}%</div>
+                  <div style={{ color: 'var(--color-text-secondary)' }}>Chunks: {summary.chunks_processed} · Alerts: {summary.alerts_triggered}</div>
+                  <div style={{ color: 'var(--color-text-secondary)' }}>Max Risk: {summary.max_risk_score} · Max CPI: {Number(summary.max_cpi || 0).toFixed(1)}</div>
+                  {summary.language && <div style={{ color: 'var(--color-text-muted)' }}>Language: {summary.language}</div>}
+                  {summary.llm_checks_performed > 0 && <div style={{ color: 'var(--color-data)' }}>LLM Checks: {summary.llm_checks_performed}</div>}
                 </div>
               </div>
             )}
 
             {retentionPolicy && (
-              <div style={{ border: '1px solid #222', background: '#070707', padding: '14px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                  <Info size={14} aria-hidden="true" color="#93c5fd" />
-                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: '#888' }}>RETENTION POLICY</span>
+              <div className="metric-card">
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-3)' }}>
+                  <Info size={14} aria-hidden="true" color="var(--color-info)" />
+                  <span className="metric-label" style={{ marginBottom: 0 }}>Retention Policy</span>
                 </div>
-                <div style={{ display: 'grid', gap: '6px', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: '#bbb' }}>
+                <div style={{ display: 'grid', gap: 'var(--space-2)', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--color-text-secondary)' }}>
                   <div>Raw audio: {retentionPolicy.raw_audio_storage || 'not_persisted'}</div>
                   <div>Active TTL: {retentionPolicy.active_session_retention_seconds}s</div>
                   <div>Ended TTL: {retentionPolicy.ended_session_retention_seconds}s</div>
                   {Array.isArray(retentionPolicy.stored_derived_fields) && retentionPolicy.stored_derived_fields.length > 0 && (
-                    <div style={{ marginTop: '4px' }}>
-                      <span style={{ color: '#666' }}>Stored fields: </span>
-                      {retentionPolicy.stored_derived_fields.join(', ')}
-                    </div>
+                    <div style={{ color: 'var(--color-text-muted)' }}>Stored: {retentionPolicy.stored_derived_fields.join(', ')}</div>
                   )}
                 </div>
               </div>

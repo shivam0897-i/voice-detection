@@ -1,55 +1,31 @@
-﻿import { AlertTriangle, CheckSquare, Cpu, Clock, RefreshCw } from 'lucide-react';
-import '../styles/components.css';
+﻿import { AlertTriangle, ShieldCheck, Cpu, RefreshCw } from 'lucide-react';
 
-const ResultCard = ({ result, loading, error, responseTime, onRetry }) => {
+const ResultCard = ({ result, loading, error, onRetry }) => {
   if (loading) {
     return (
-      <div style={{ height: '300px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--color-border)', background: 'var(--color-bg-panel)' }}>
-        <div style={{ fontFamily: 'var(--font-mono)', color: 'var(--color-accent)', marginBottom: '16px', fontSize: '1.2rem' }}>ANALYZING...</div>
-        <div style={{ width: '60%', height: '4px', background: '#333', position: 'relative', overflow: 'hidden' }}>
-          <div style={{ width: '100%', height: '100%', background: 'var(--color-accent)', animation: 'scan 1.5s infinite linear', transform: 'translateX(-100%)' }}></div>
+      <div className="result-card">
+        <div className="result-card-loading">
+          <div className="result-card-loading-text">Analyzing…</div>
+          <div className="result-card-loading-bar">
+            <div className="result-card-loading-bar-inner" />
+          </div>
+          <div className="result-card-loading-hint">Processing audio patterns</div>
         </div>
-        <div style={{ marginTop: '20px', fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: '#666' }}>
-          Analyzing audio patterns...
-        </div>
-        <style>{`
-          @keyframes scan {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-          }
-        `}</style>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div role="alert" aria-live="assertive" style={{ border: '1px solid #FF0000', padding: '2rem', textAlign: 'center', color: '#FF0000', background: 'rgba(255,0,0,0.05)' }}>
-        <AlertTriangle size={48} style={{ marginBottom: '1rem' }} aria-hidden="true" />
-        <div className="text-mono" style={{ fontSize: '1rem', fontWeight: 'bold', marginBottom: '1rem' }}>
-          {error}
+      <div className="result-error" role="alert" aria-live="assertive">
+        <div className="result-error-icon">
+          <AlertTriangle size={40} aria-hidden="true" />
         </div>
+        <div className="result-error-text">{error}</div>
         {onRetry && (
-          <button
-            onClick={onRetry}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '12px 24px',
-              background: 'transparent',
-              border: '1px solid #FF0000',
-              color: '#FF0000',
-              cursor: 'pointer',
-              fontFamily: 'var(--font-mono)',
-              fontSize: '0.85rem',
-              textTransform: 'uppercase',
-              transition: 'background 0.2s, color 0.2s',
-            }}
-            onMouseEnter={(e) => { e.target.style.background = '#FF0000'; e.target.style.color = '#000'; }}
-            onMouseLeave={(e) => { e.target.style.background = 'transparent'; e.target.style.color = '#FF0000'; }}
-          >
-            <RefreshCw size={14} aria-hidden="true" /> Try Again
+          <button onClick={onRetry} className="retry-button">
+            <RefreshCw size={14} aria-hidden="true" />
+            Try Again
           </button>
         )}
       </div>
@@ -64,133 +40,91 @@ const ResultCard = ({ result, loading, error, responseTime, onRetry }) => {
   const confidence = Number(result.confidenceScore || 0);
   const confidencePercent = (confidence * 100).toFixed(0);
 
-  const color = isFake ? '#FF3333' : isUncertain ? '#eab308' : '#00FF00';
-  const label = isFake ? 'SYNTHETIC_DETECTED' : isUncertain ? 'UNCERTAIN_RESULT' : 'HUMAN_VERIFIED';
-  const icon = isFake
-    ? <Cpu size={64} aria-hidden="true" />
+  const variant = isFake ? 'danger' : isUncertain ? 'uncertain' : 'safe';
+  const label = isFake ? 'Synthetic Detected' : isUncertain ? 'Uncertain Result' : 'Human Verified';
+  const colorVar = isFake
+    ? 'var(--color-danger)'
     : isUncertain
-      ? <AlertTriangle size={64} aria-hidden="true" />
-      : <CheckSquare size={64} aria-hidden="true" />;
+      ? 'var(--color-warning)'
+      : 'var(--color-success)';
 
-  const id = result.session_id ? String(result.session_id).slice(0, 8).toUpperCase() : 'LEGACY';
+  const icon = isFake
+    ? <Cpu size={26} aria-hidden="true" />
+    : isUncertain
+      ? <AlertTriangle size={26} aria-hidden="true" />
+      : <ShieldCheck size={26} aria-hidden="true" />;
 
   return (
     <div
+      className="result-card"
       role="region"
       aria-live="polite"
       aria-label={`Analysis result: ${label}, confidence ${confidencePercent}%`}
-      style={{ marginTop: '2rem', border: '1px solid var(--color-border)', background: '#050505', position: 'relative' }}
     >
-      <div style={{ position: 'absolute', top: '-1px', left: '-1px', width: '20px', height: '20px', borderTop: `2px solid ${color}`, borderLeft: `2px solid ${color}` }} />
-      <div style={{ position: 'absolute', bottom: '-1px', right: '-1px', width: '20px', height: '20px', borderBottom: `2px solid ${color}`, borderRight: `2px solid ${color}` }} />
+      {/* Header row */}
+      <div className="result-header">
+        <div className={`result-icon ${variant}`}>{icon}</div>
+        <div className="result-header-info">
+          <h3 className="result-label" style={{ color: colorVar }}>{label}</h3>
+          <div className="result-sublabel">{classification}</div>
+        </div>
+        <span className={`result-badge ${variant}`}>{confidencePercent}%</span>
+      </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(200px, 1fr) 2fr', gap: '0' }} className="result-grid">
-
-        <div style={{
-          background: isFake
-            ? 'rgba(255, 50, 50, 0.1)'
-            : isUncertain
-              ? 'rgba(234, 179, 8, 0.12)'
-              : 'rgba(0, 255, 0, 0.1)',
-          padding: '40px',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          borderRight: '1px solid var(--color-border)'
-        }}>
-          <div style={{ color: color, marginBottom: '20px' }}>{icon}</div>
-          <h2 style={{ color: color, margin: '0', fontSize: '1.8rem', textAlign: 'center', lineHeight: '1.2' }}>{label}</h2>
-          <div style={{ marginTop: '20px', fontFamily: 'var(--font-mono)', fontSize: '0.8rem', color: '#888' }}>ID: {id}</div>
-
-          {responseTime && (
-            <div style={{
-              marginTop: '16px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '6px 12px',
-              background: 'rgba(204, 255, 0, 0.1)',
-              border: '1px solid #333',
-            }}>
-              <Clock size={12} color="#ccff00" aria-hidden="true" />
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: '#ccff00' }}>
-                {responseTime}s
-              </span>
-            </div>
-          )}
+      {/* Body */}
+      <div className="result-body">
+        {/* Confidence bar */}
+        <div className="confidence-section">
+          <div className="confidence-header">
+            <span className="confidence-label">Confidence</span>
+            <span className="confidence-value" style={{ color: colorVar }}>{confidencePercent}%</span>
+          </div>
+          <div className="confidence-bar">
+            <div
+              className="confidence-bar-fill"
+              style={{ width: `${confidencePercent}%`, background: colorVar }}
+            />
+          </div>
         </div>
 
-        <div style={{ padding: '40px' }}>
+        {/* Explanation */}
+        {result.explanation && (
+          <p className="result-explanation">{result.explanation}</p>
+        )}
 
-          <div style={{ marginBottom: '40px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontFamily: 'var(--font-mono)' }}>
-              <span style={{ color: '#888' }}>CONFIDENCE_LEVEL</span>
-              <span style={{ color: color, fontWeight: 'bold', fontSize: '1.5rem' }}>{confidencePercent}%</span>
-            </div>
-            <div style={{ height: '12px', background: '#222', width: '100%', position: 'relative' }}>
-              <div style={{ position: 'absolute', top: '0', left: '0', right: '0', bottom: '0', display: 'flex', justifyContent: 'space-between' }}>
-                {[...Array(10)].map((_, i) => (
-                  <div key={i} style={{ width: '1px', background: '#111', height: '100%' }} />
-                ))}
-              </div>
-              <div style={{
-                height: '100%',
-                width: `${confidencePercent}%`,
-                background: color,
-                boxShadow: `0 0 15px ${color}`,
-                transition: 'width 1s ease-out'
-              }} />
+        {/* Guidance for uncertain results */}
+        {(result.modelUncertain || result.recommendedAction) && (
+          <div className="result-guidance">
+            <div className="result-guidance-title">Model Uncertainty Guidance</div>
+            <div className="result-guidance-text">
+              {result.recommendedAction || 'Treat this result conservatively and verify caller identity via trusted channels.'}
             </div>
           </div>
+        )}
 
-          <div>
-            <h4 style={{ margin: '0 0 15px 0', fontFamily: 'var(--font-mono)', color: '#888', fontSize: '0.9rem', textTransform: 'uppercase' }}>Analysis Details</h4>
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: '1rem', lineHeight: '1.6', color: '#EEE', borderLeft: '2px solid #333', paddingLeft: '20px' }}>
-              {result.explanation}
-            </p>
-            {(result.modelUncertain || result.recommendedAction) && (
-              <div style={{ marginTop: '16px', padding: '12px', border: '1px solid #5a4a1a', background: 'rgba(234, 179, 8, 0.08)' }}>
-                <div style={{ color: '#eab308', fontFamily: 'var(--font-mono)', fontSize: '0.75rem', textTransform: 'uppercase', marginBottom: '8px' }}>
-                  Model uncertainty guidance
-                </div>
-                <div style={{ color: '#d4d4d4', fontFamily: 'var(--font-mono)', fontSize: '0.85rem', lineHeight: '1.5' }}>
-                  {result.recommendedAction || 'Treat this result conservatively and verify caller identity via trusted channels.'}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {result.forensic_metrics && (
-             <div style={{ marginTop: '40px', borderTop: '1px dashed #333', paddingTop: '30px' }}>
-               <h4 style={{ margin: '0 0 20px 0', fontFamily: 'var(--font-mono)', color: '#888', fontSize: '0.9rem', textTransform: 'uppercase' }}>Forensic Telemetry</h4>
-
-               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                  {Object.entries(result.forensic_metrics).map(([key, value]) => (
-                    <div key={key}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: '#666', textTransform: 'uppercase' }}>
-                          {key.replace('_', ' ')}
-                        </span>
-                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: '#AAA' }}>
-                          {Number(value).toFixed(1)}
-                        </span>
-                      </div>
-                      <div style={{ height: '4px', background: '#222', width: '100%' }}>
-                        <div style={{
-                          height: '100%',
-                          width: `${Math.min(Number(value), 100)}%`,
-                          background: Number(value) > 50 ? 'var(--color-accent)' : '#444',
-                          borderRight: '1px solid #FFF'
-                        }} />
-                      </div>
+        {/* Forensic metrics */}
+        {result.forensic_metrics && (
+          <div className="forensic-section">
+            <div className="forensic-title">Forensic Telemetry</div>
+            <div className="forensic-grid">
+              {Object.entries(result.forensic_metrics).map(([key, value]) => {
+                const pct = Math.min(Number(value), 100);
+                const barColor = pct > 50 ? 'var(--color-accent)' : 'var(--color-text-muted)';
+                return (
+                  <div key={key}>
+                    <div className="forensic-item-label">
+                      <span>{key.replace(/_/g, ' ')}</span>
+                      <span>{Number(value).toFixed(1)}</span>
                     </div>
-                  ))}
-               </div>
-             </div>
-          )}
-
-        </div>
+                    <div className="forensic-bar">
+                      <div className="forensic-bar-fill" style={{ width: `${pct}%`, background: barColor }} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
