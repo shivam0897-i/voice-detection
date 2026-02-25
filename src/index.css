@@ -103,14 +103,6 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-.tagline {
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  color: var(--color-accent);
-  text-transform: uppercase;
-  margin-top: 5px;
-}
-
 /* --- Bento Grid --- */
 .bento-grid {
   display: grid;
@@ -180,31 +172,6 @@ body {
 .drop-zone:hover {
   background: rgba(204, 255, 0, 0.05);
   border-color: var(--color-accent);
-}
-
-.scanner-beam {
-  position: absolute;
-  width: 100%;
-  height: 2px;
-  background: var(--color-accent);
-  box-shadow: 0 0 15px var(--color-accent);
-  top: 0;
-  opacity: 0;
-}
-
-.drop-zone:hover .scanner-beam {
-  opacity: 1;
-  animation: sweep 2s infinite alternate ease-in-out;
-}
-
-@keyframes sweep {
-  from {
-    top: 0;
-  }
-
-  to {
-    top: 100%;
-  }
 }
 
 @keyframes pulse {
@@ -355,7 +322,6 @@ body {
 }
 
 /* --- Language Selector --- */
-/* --- Language Selector --- */
 .lang-selector-container {
   position: relative;
   width: 100%;
@@ -417,7 +383,6 @@ body {
   border-bottom: none;
 }
 
-/* Selected State */
 .lang-option.selected {
   background: #111;
   color: var(--color-accent);
@@ -514,8 +479,7 @@ button:focus-visible,
     scroll-behavior: auto !important;
   }
   
-  .scanner-line,
-  .scanner-beam {
+  .scanner-line {
     animation: none !important;
     opacity: 0 !important;
   }
@@ -709,5 +673,3 @@ button:focus-visible,
     grid-template-columns: 1fr 1fr;
   }
 }
-
-

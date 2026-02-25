@@ -1,8 +1,7 @@
-﻿import React, { useState, useRef, useEffect, useCallback } from 'react';
+﻿import { useState, useRef, useEffect, useCallback } from 'react';
 import { Play, Pause, Volume2, VolumeX, RotateCcw } from 'lucide-react';
 import { WAVEFORM_BARS } from '../constants';
 
-// Shared button styles
 const buttonBaseStyle = {
     cursor: 'pointer',
     display: 'flex',
@@ -26,14 +25,12 @@ const AudioPlayer = ({ file }) => {
     const progressRef = useRef(null);
     const audioContextRef = useRef(null);
 
-    // Analyze audio file using Web Audio API to get real waveform data
     const analyzeAudio = useCallback(async (audioFile) => {
         if (!audioFile) return;
         
         setIsAnalyzing(true);
         
         try {
-            // Create AudioContext if not exists
             if (!audioContextRef.current) {
                 audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
             }
@@ -42,7 +39,6 @@ const AudioPlayer = ({ file }) => {
             const arrayBuffer = await audioFile.arrayBuffer();
             const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
             
-            // Get the audio data from the first channel
             const channelData = audioBuffer.getChannelData(0);
             const samples = channelData.length;
             const blockSize = Math.floor(samples / WAVEFORM_BARS);
@@ -77,7 +73,6 @@ const AudioPlayer = ({ file }) => {
         }
     }, []);
 
-    // Create object URL when file changes - with proper cleanup
     useEffect(() => {
         if (!file) {
             setAudioUrl(null);
@@ -92,7 +87,6 @@ const AudioPlayer = ({ file }) => {
         setCurrentTime(0);
         setIsPlaying(false);
         
-        // Analyze the audio for real waveform
         analyzeAudio(file);
         
         return () => {
@@ -100,7 +94,6 @@ const AudioPlayer = ({ file }) => {
         };
     }, [file, analyzeAudio]);
     
-    // Cleanup AudioContext on unmount
     useEffect(() => {
         return () => {
             if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
@@ -109,7 +102,6 @@ const AudioPlayer = ({ file }) => {
         };
     }, []);
 
-    // Update time
     useEffect(() => {
         const audio = audioRef.current;
         if (!audio) return;
@@ -201,7 +193,6 @@ const AudioPlayer = ({ file }) => {
         }}>
             <audio ref={audioRef} src={audioUrl} preload="metadata" />
             
-            {/* File Info */}
             <div style={{
                 display: 'flex',
                 justifyContent: 'space-between',
@@ -215,7 +206,6 @@ const AudioPlayer = ({ file }) => {
                 <span>{(file.size / 1024).toFixed(1)} KB</span>
             </div>
 
-            {/* Waveform Visualization - Real Audio Analysis */}
             <div 
                 ref={progressRef}
                 onClick={handleProgressClick}
@@ -239,7 +229,6 @@ const AudioPlayer = ({ file }) => {
                     gap: '2px',
                 }}
             >
-                {/* Loading indicator while analyzing */}
                 {isAnalyzing && (
                     <div style={{
                         position: 'absolute',
@@ -256,7 +245,6 @@ const AudioPlayer = ({ file }) => {
                     </div>
                 )}
                 
-                {/* Real waveform bars from Web Audio API analysis */}
                 {!isAnalyzing && waveformData.map((height, i) => {
                     const isPlayed = (i / WAVEFORM_BARS) * 100 <= progress;
                     return (
@@ -272,7 +260,6 @@ const AudioPlayer = ({ file }) => {
                     );
                 })}
                 
-                {/* Playhead */}
                 <div style={{
                     position: 'absolute',
                     left: `${progress}%`,
@@ -284,13 +271,11 @@ const AudioPlayer = ({ file }) => {
                 }} />
             </div>
 
-            {/* Controls */}
             <div style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '12px',
             }}>
-                {/* Play/Pause */}
                 <button
                     onClick={togglePlay}
                     onFocus={() => setFocusedButton('play')}
@@ -309,7 +294,6 @@ const AudioPlayer = ({ file }) => {
                     {isPlaying ? <Pause size={20} aria-hidden="true" /> : <Play size={20} aria-hidden="true" />}
                 </button>
 
-                {/* Restart */}
                 <button
                     onClick={restart}
                     onFocus={() => setFocusedButton('restart')}
@@ -328,7 +312,6 @@ const AudioPlayer = ({ file }) => {
                     <RotateCcw size={14} aria-hidden="true" />
                 </button>
 
-                {/* Time Display */}
                 <div style={{
                     flex: 1,
                     fontFamily: "'JetBrains Mono', monospace",
@@ -340,7 +323,6 @@ const AudioPlayer = ({ file }) => {
                     <span style={{ color: '#888' }}>{formatTime(duration)}</span>
                 </div>
 
-                {/* Mute */}
                 <button
                     onClick={toggleMute}
                     onFocus={() => setFocusedButton('mute')}
@@ -364,5 +346,3 @@ const AudioPlayer = ({ file }) => {
 };
 
 export default AudioPlayer;
-
-

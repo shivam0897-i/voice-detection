@@ -2,7 +2,7 @@
 import { MIC_CHUNK_DURATION_MS } from '../constants';
 import { pcmToWavBase64 } from '../utils/realtimeAudio';
 
-/** RMS threshold below which a chunk is considered silence and skipped (M9 fix). */
+/** RMS threshold below which a chunk is considered silence and skipped. */
 const SILENCE_RMS_THRESHOLD = 0.01;
 
 /**
@@ -94,7 +94,6 @@ export default function useMicRecorder() {
     setIsRecording(false);
   }, [stopAllTracks]);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       onChunkRef.current = null;
@@ -112,14 +111,12 @@ export default function useMicRecorder() {
   const startRecording = useCallback(async (onChunk) => {
     setError(null);
 
-    // Check for HTTPS (getUserMedia requires secure context)
     if (window.isSecureContext === false) {
       const msg = 'Microphone requires HTTPS. Please use a secure connection.';
       setError(msg);
       throw new Error(msg);
     }
 
-    // Check browser support
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       const msg = 'Your browser does not support microphone access.';
       setError(msg);
@@ -165,7 +162,6 @@ export default function useMicRecorder() {
         pcmSampleCountRef.current += inputData.length;
 
         if (pcmSampleCountRef.current >= samplesPerChunk) {
-          // Flatten accumulated buffers into one array
           const allSamples = new Float32Array(pcmSampleCountRef.current);
           let offset = 0;
           for (const buf of pcmBufferRef.current) {
@@ -175,7 +171,7 @@ export default function useMicRecorder() {
           pcmBufferRef.current = [];
           pcmSampleCountRef.current = 0;
 
-          // RMS silence check (M9 fix)
+          // RMS silence gate
           let sumSq = 0;
           for (let i = 0; i < allSamples.length; i += 1) {
             sumSq += allSamples[i] * allSamples[i];
@@ -193,7 +189,9 @@ export default function useMicRecorder() {
               onChunkRef.current(base64);
             }
           } catch (convErr) {
-            console.warn('PCM→WAV conversion failed, skipping chunk:', convErr);
+            if (import.meta.env.DEV) {
+              console.warn('PCM→WAV conversion failed, skipping chunk:', convErr);
+            }
           }
         }
       };
@@ -209,7 +207,6 @@ export default function useMicRecorder() {
 
       setIsRecording(true);
     } catch (err) {
-      // Translate known error types to friendly messages
       let msg;
       if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
         msg = 'Microphone permission denied. Please allow mic access and try again.';
@@ -227,4 +224,3 @@ export default function useMicRecorder() {
 
   return { startRecording, stopRecording, isRecording, error };
 }
-

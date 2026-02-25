@@ -1,5 +1,5 @@
 ﻿/* eslint-disable react-refresh/only-export-components */
-import React, { useState, useEffect, createContext, useContext, useCallback } from 'react';
+import { useState, useEffect, createContext, useContext, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { X, AlertTriangle, CheckCircle, Info, AlertCircle } from 'lucide-react';
 import { TOAST_DURATION_MS, TOAST_TYPES } from '../constants';
@@ -157,4 +157,3 @@ export const ToastProvider = ({ children }) => {
 };
 
 export default ToastProvider;
-

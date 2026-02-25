@@ -1,5 +1,5 @@
 ﻿import { useState, useRef } from 'react';
-import { Upload, FileAudio, CheckSquare } from 'lucide-react';
+import { Upload, CheckSquare } from 'lucide-react';
 import { useToast } from './Toast';
 import { SUPPORTED_FORMATS, MAX_FILE_SIZE_BYTES, MAX_FILE_SIZE_MB } from '../constants';
 import '../styles/components.css';
@@ -71,7 +71,6 @@ const DragDropZone = ({ onFileSelect }) => {
                 aria-label="Select audio file"
             />
 
-            {/* Visuals */}
             <div className="scanner-line"></div>
             <div className="crosshair tl"></div>
             <div className="crosshair tr"></div>

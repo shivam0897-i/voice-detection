@@ -1,5 +1,4 @@
-﻿import React from 'react';
-import { AlertTriangle, CheckSquare, Cpu, Clock, RefreshCw } from 'lucide-react';
+﻿import { AlertTriangle, CheckSquare, Cpu, Clock, RefreshCw } from 'lucide-react';
 import '../styles/components.css';
 
 const ResultCard = ({ result, loading, error, responseTime, onRetry }) => {
@@ -65,7 +64,6 @@ const ResultCard = ({ result, loading, error, responseTime, onRetry }) => {
   const confidence = Number(result.confidenceScore || 0);
   const confidencePercent = (confidence * 100).toFixed(0);
 
-  // Design logic
   const color = isFake ? '#FF3333' : isUncertain ? '#eab308' : '#00FF00';
   const label = isFake ? 'SYNTHETIC_DETECTED' : isUncertain ? 'UNCERTAIN_RESULT' : 'HUMAN_VERIFIED';
   const icon = isFake
@@ -83,14 +81,11 @@ const ResultCard = ({ result, loading, error, responseTime, onRetry }) => {
       aria-label={`Analysis result: ${label}, confidence ${confidencePercent}%`}
       style={{ marginTop: '2rem', border: '1px solid var(--color-border)', background: '#050505', position: 'relative' }}
     >
-      {/* Corner Decorations */}
       <div style={{ position: 'absolute', top: '-1px', left: '-1px', width: '20px', height: '20px', borderTop: `2px solid ${color}`, borderLeft: `2px solid ${color}` }} />
       <div style={{ position: 'absolute', bottom: '-1px', right: '-1px', width: '20px', height: '20px', borderBottom: `2px solid ${color}`, borderRight: `2px solid ${color}` }} />
 
-      {/* Main Layout */}
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(200px, 1fr) 2fr', gap: '0' }} className="result-grid">
 
-        {/* Left: Verdict Panel */}
         <div style={{
           background: isFake
             ? 'rgba(255, 50, 50, 0.1)'
@@ -108,7 +103,6 @@ const ResultCard = ({ result, loading, error, responseTime, onRetry }) => {
           <h2 style={{ color: color, margin: '0', fontSize: '1.8rem', textAlign: 'center', lineHeight: '1.2' }}>{label}</h2>
           <div style={{ marginTop: '20px', fontFamily: 'var(--font-mono)', fontSize: '0.8rem', color: '#888' }}>ID: {id}</div>
 
-          {/* Response Time Badge */}
           {responseTime && (
             <div style={{
               marginTop: '16px',
@@ -127,23 +121,19 @@ const ResultCard = ({ result, loading, error, responseTime, onRetry }) => {
           )}
         </div>
 
-        {/* Right: Analytics Panel */}
         <div style={{ padding: '40px' }}>
 
-          {/* Confidence Meter */}
           <div style={{ marginBottom: '40px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontFamily: 'var(--font-mono)' }}>
               <span style={{ color: '#888' }}>CONFIDENCE_LEVEL</span>
               <span style={{ color: color, fontWeight: 'bold', fontSize: '1.5rem' }}>{confidencePercent}%</span>
             </div>
             <div style={{ height: '12px', background: '#222', width: '100%', position: 'relative' }}>
-              {/* Ticks */}
               <div style={{ position: 'absolute', top: '0', left: '0', right: '0', bottom: '0', display: 'flex', justifyContent: 'space-between' }}>
                 {[...Array(10)].map((_, i) => (
                   <div key={i} style={{ width: '1px', background: '#111', height: '100%' }} />
                 ))}
               </div>
-              {/* Bar */}
               <div style={{
                 height: '100%',
                 width: `${confidencePercent}%`,
@@ -154,7 +144,6 @@ const ResultCard = ({ result, loading, error, responseTime, onRetry }) => {
             </div>
           </div>
 
-          {/* Explanation */}
           <div>
             <h4 style={{ margin: '0 0 15px 0', fontFamily: 'var(--font-mono)', color: '#888', fontSize: '0.9rem', textTransform: 'uppercase' }}>Analysis Details</h4>
             <p style={{ fontFamily: 'var(--font-mono)', fontSize: '1rem', lineHeight: '1.6', color: '#EEE', borderLeft: '2px solid #333', paddingLeft: '20px' }}>
@@ -172,7 +161,6 @@ const ResultCard = ({ result, loading, error, responseTime, onRetry }) => {
             )}
           </div>
 
-          {/* Forensic Metrics */}
           {result.forensic_metrics && (
              <div style={{ marginTop: '40px', borderTop: '1px dashed #333', paddingTop: '30px' }}>
                <h4 style={{ margin: '0 0 20px 0', fontFamily: 'var(--font-mono)', color: '#888', fontSize: '0.9rem', textTransform: 'uppercase' }}>Forensic Telemetry</h4>
@@ -209,4 +197,3 @@ const ResultCard = ({ result, loading, error, responseTime, onRetry }) => {
 };
 
 export default ResultCard;
-

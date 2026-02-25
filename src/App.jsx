@@ -126,7 +126,7 @@ function App() {
   const micStartTimeRef = useRef(null);
   const wsRef = useRef(null);
   const httpQueueRef = useRef(Promise.resolve());
-  const httpInflightRef = useRef(0); // M10 fix: bounded HTTP queue
+  const httpInflightRef = useRef(0); // Bounded HTTP queue depth
 
   const isRealtime = mode === MODES.REALTIME;
   const isMicMode = isRealtime && inputSource === 'mic';
@@ -595,7 +595,7 @@ function App() {
         wsHandle = createRealtimeWebSocket(activeSessionId, {
           onUpdate: handleChunkUpdate,
           onError(err) {
-            console.warn('WebSocket error:', err);
+            if (import.meta.env.DEV) console.warn('WebSocket error:', err);
             const msg = err?.message || '';
             // Surface server-side timeout/duration errors to user
             if (msg.includes('Idle timeout') || msg.includes('max duration')) {
@@ -664,7 +664,7 @@ function App() {
               });
               handleChunkUpdate(update);
             } catch (chunkErr) {
-              console.warn('HTTP chunk failed:', chunkErr);
+              if (import.meta.env.DEV) console.warn('HTTP chunk failed:', chunkErr);
               addLog(`CHUNK_ERROR: ${chunkErr?.message || 'unknown'}`);
             } finally {
               httpInflightRef.current = Math.max(0, httpInflightRef.current - 1);
@@ -1248,15 +1248,4 @@ function App() {
 }
 
 export default App;
-
-
-
-
-
-
-
-
-
-
-
 

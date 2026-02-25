@@ -71,7 +71,7 @@ export async function createRealtimeChunksFromFile(file, chunkDurationSec = 3.0)
     throw new Error('Web Audio API is not supported in this browser.');
   }
 
-  // L1 fix: force 16kHz to match mic chunks and reduce upload bandwidth
+  // Force 16 kHz to match mic chunks
   const audioContext = new AudioContextClass({ sampleRate: 16000 });
 
   try {

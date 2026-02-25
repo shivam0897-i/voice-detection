@@ -13,8 +13,9 @@ class ErrorBoundary extends React.Component {
 
   componentDidCatch(error, errorInfo) {
     this.setState({ errorInfo });
-    // Log to error reporting service in production
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
+    if (import.meta.env.DEV) {
+      console.error('ErrorBoundary caught an error:', error, errorInfo);
+    }
   }
 
   handleRetry = () => {
@@ -47,7 +48,6 @@ class ErrorBoundary extends React.Component {
               maxWidth: '600px',
             }}
           >
-            {/* Corner decorations */}
             <div style={{ position: 'relative' }}>
               <div style={{ position: 'absolute', top: '-61px', left: '-61px', width: '20px', height: '20px', borderTop: '2px solid #ff3333', borderLeft: '2px solid #ff3333' }} />
               <div style={{ position: 'absolute', bottom: '-61px', right: '-61px', width: '20px', height: '20px', borderBottom: '2px solid #ff3333', borderRight: '2px solid #ff3333' }} />

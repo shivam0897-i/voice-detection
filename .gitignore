@@ -49,3 +49,10 @@ security_best_practices_report.md
 .github/skills/
 
 .vercel
+
+# Vite boilerplate (unused)
+src/assets/react.svg
+public/vite.svg
+
+# Dev-only utility scripts
+scripts/

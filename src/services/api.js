@@ -124,7 +124,6 @@ async function fetchRealtimeWithFallback(suffixPath, options = {}) {
   throw new Error('Analysis service is temporarily unavailable. Please try again shortly.');
 }
 
-// Warn in development for config shape issues.
 if (import.meta.env.DEV) {
   if (shouldUseServerProxy()) {
     console.info('[VoiceGuard] Using server proxy mode for backend calls.');
@@ -261,7 +260,7 @@ export function isRealtimeWebSocketEnabled() {
  *
  * Includes onopen gating: chunks sent before the connection is open are
  * buffered in a pending queue and flushed automatically upon open.
- * L5 fix: auto-reconnects up to 3 times on unexpected close.
+ * Auto-reconnects up to 3 times on unexpected close.
  *
  * @param {string} sessionId - active session ID
  * @param {{ onUpdate?: Function, onError?: Function, onClose?: Function, onOpen?: Function }} handlers
@@ -284,7 +283,7 @@ export function createRealtimeWebSocket(sessionId, { onUpdate, onError, onClose,
       isOpen = true;
       reconnectAttempts = 0;
       rejectReady = null;
-      // L4 fix: send API key as first message instead of URL query param
+      // Send API key as first message (not URL query param)
       ws.send(JSON.stringify({ type: 'auth', api_key: API_CONFIG.API_KEY }));
       while (pendingQueue.length > 0) {
         ws.send(JSON.stringify(pendingQueue.shift()));
@@ -321,7 +320,7 @@ export function createRealtimeWebSocket(sessionId, { onUpdate, onError, onClose,
       }
       isOpen = false;
 
-      // L5 fix: auto-reconnect on unexpected close
+      // Auto-reconnect on unexpected close
       // Skip reconnect for server-side duration/idle timeouts (code 1000 with reason)
       const isServerTimeout = event.code === 1000 && (
         event.reason?.includes('Max duration') || event.reason?.includes('Idle timeout')
@@ -329,7 +328,9 @@ export function createRealtimeWebSocket(sessionId, { onUpdate, onError, onClose,
       if (!intentionalClose && !isServerTimeout && reconnectAttempts < MAX_RECONNECT) {
         reconnectAttempts += 1;
         const delay = Math.min(1000 * reconnectAttempts, 3000);
-        console.warn(`WebSocket closed unexpectedly, reconnecting in ${delay}ms (attempt ${reconnectAttempts}/${MAX_RECONNECT})`);
+        if (import.meta.env.DEV) {
+          console.warn(`WebSocket closed unexpectedly, reconnecting in ${delay}ms (attempt ${reconnectAttempts}/${MAX_RECONNECT})`);
+        }
         setTimeout(() => connect(), delay);
       } else {
         onClose?.(event);
@@ -373,5 +374,3 @@ export function createRealtimeWebSocket(sessionId, { onUpdate, onError, onClose,
     ws,
   };
 }
-
-

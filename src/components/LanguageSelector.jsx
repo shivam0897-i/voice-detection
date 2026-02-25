@@ -1,4 +1,4 @@
-﻿import React, { useState, useRef, useEffect } from 'react';
+﻿import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronDown, Globe, Check } from 'lucide-react';
 
@@ -101,7 +101,6 @@ const LanguageSelector = ({ selectedLine, onSelect }) => {
         }
     };
 
-    // Close on Scroll/Resize
     useEffect(() => {
         const handleScroll = () => {
             if (isOpen) setIsOpen(false);
@@ -115,7 +114,6 @@ const LanguageSelector = ({ selectedLine, onSelect }) => {
         };
     }, [isOpen]);
 
-    // Click outside handler
     useEffect(() => {
         const handleClickOutside = (e) => {
             if (
@@ -137,7 +135,6 @@ const LanguageSelector = ({ selectedLine, onSelect }) => {
         };
     }, [isOpen]);
 
-    // Keyboard navigation
     useEffect(() => {
         const handleKeyDown = (e) => {
             if (!isOpen) return;

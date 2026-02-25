@@ -165,7 +165,6 @@
   border: 1px solid var(--color-border) !important;
   background: var(--color-bg-panel) !important;
   border-radius: 0 !important;
-  /* Squared corners */
 }
 
 .lang-trigger:hover {
@@ -181,5 +180,4 @@
 .lang-option:hover {
   background: var(--color-accent-primary) !important;
   color: #000 !important;
-  /* High contrast on hover */
 }

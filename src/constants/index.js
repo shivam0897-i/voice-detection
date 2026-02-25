@@ -34,7 +34,6 @@ export const MIC_CHUNK_DURATION_MS = envInt('VITE_MIC_CHUNK_DURATION_MS', 3000);
 export const API_TIMEOUT_MS = envInt('VITE_API_TIMEOUT_MS', 30000);
 
 // === Realtime Session ===
-// M11 fix: unified to 3.0s to match MIC_CHUNK_DURATION_MS (was 2.4)
 export const REALTIME_CHUNK_DURATION_SEC = (() => {
   const raw = import.meta.env.VITE_REALTIME_CHUNK_DURATION_SEC;
   if (raw == null || raw === '') return 3.0;

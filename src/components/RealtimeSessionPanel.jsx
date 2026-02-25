@@ -1,5 +1,4 @@
-﻿import React from 'react';
-import {
+﻿import {
   Activity,
   AlertTriangle,
   ShieldAlert,
@@ -406,7 +405,6 @@ const RealtimeSessionPanel = ({
               {transcript || 'Transcript unavailable. Risk model still evaluated acoustic + behavioral signals.'}
             </div>
 
-            {/* LLM Semantic Badge */}
             {languageAnalysis.llm_semantic_used && (
               <div style={{
                 marginTop: '8px',
@@ -428,7 +426,6 @@ const RealtimeSessionPanel = ({
               </div>
             )}
 
-            {/* Sub-Score Breakdown */}
             {(languageAnalysis.keyword_score > 0 || languageAnalysis.semantic_score > 0 || languageAnalysis.behaviour_score > 0) && (
               <div style={{ marginTop: '10px', display: 'grid', gap: '4px' }}>
                 <div style={{ color: '#888', fontFamily: 'var(--font-mono)', fontSize: '0.68rem', marginBottom: '2px' }}>SIGNAL SCORES</div>
@@ -462,7 +459,6 @@ const RealtimeSessionPanel = ({
                       ))}
                     </div>
 
-                    {/* Keyword Categories */}
                     {Array.isArray(languageAnalysis.keyword_categories) && languageAnalysis.keyword_categories.length > 0 && (
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '6px' }}>
                         {languageAnalysis.keyword_categories.map((cat) => (
@@ -628,7 +624,6 @@ const RealtimeSessionPanel = ({
 
               <ContributionList contributions={latestUpdate.explainability.signal_contributions} />
 
-              {/* Uncertainty Note */}
               {latestUpdate.explainability.uncertainty_note && (
                 <div style={{
                   marginTop: '10px',
@@ -721,8 +716,4 @@ const RealtimeSessionPanel = ({
 };
 
 export default RealtimeSessionPanel;
-
-
-
-
 
