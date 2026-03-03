@@ -2,8 +2,6 @@
 import './index.css';
 import { Download, Shield } from 'lucide-react';
 
-import Header from './components/Header';
-import HeroSection from './components/HeroSection';
 import ModeTabs, { MODES } from './components/ModeTabs';
 import InputControls from './components/InputControls';
 import ResultCard from './components/ResultCard';
@@ -314,7 +312,7 @@ function App() {
       setSessionStatus('error');
       addLog(`ERROR: ${msg}`);
       toast.error(msg);
-      if (activeSessionId) await endRealtimeSession(activeSessionId).catch(() => {});
+      if (activeSessionId) await endRealtimeSession(activeSessionId).catch(() => { });
     } finally {
       stopRequestedRef.current = false;
       setLoading(false);
@@ -413,7 +411,7 @@ function App() {
       addLog(`ERROR: ${msg}`);
       toast.error(msg);
       if (wsRef.current) { wsRef.current.close(); wsRef.current = null; }
-      if (activeSessionId) await endRealtimeSession(activeSessionId).catch(() => {});
+      if (activeSessionId) await endRealtimeSession(activeSessionId).catch(() => { });
       micSessionRef.current = null;
       micStartTimeRef.current = null;
       setLoading(false);
@@ -493,9 +491,6 @@ function App() {
   // ─── Render ───
   return (
     <div className="app-root">
-      <Header backendHealth={backendHealth} />
-      <HeroSection />
-
       <main id="main-content">
         <ModeTabs mode={mode} onModeChange={handleModeChange} loading={loading} />
 
@@ -574,10 +569,6 @@ function App() {
         {/* Debug + History */}
         <DebugDrawer logs={logs} responseTime={responseTime} history={history} />
       </main>
-
-      <footer className="app-footer">
-        <p>VoiceGuard &middot; AI Voice Authentication &middot; {new Date().getFullYear()}</p>
-      </footer>
     </div>
   );
 }

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0B1120" />
+    <meta name="theme-color" content="#080810" />
     <meta name="description" content="AI-powered voice authentication platform. Detect synthetic speech, prevent voice cloning fraud, and verify caller identity across multiple languages." />
     
     <!-- Canonical URL -->
@@ -22,9 +22,11 @@
     <meta name="twitter:description" content="Detect AI-generated voices, prevent voice cloning fraud, and verify caller identity in real-time." />
     <meta name="twitter:image" content="https://voice-detection-nu.vercel.app/og-image.png" />
     
-    <!-- Fonts - Preconnect for performance -->
+    <!-- Fonts - Geist (body), Sora (headings), JetBrains Mono (code) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.3.1/dist/fonts/geist-sans/style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
     
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json" />
@@ -64,7 +66,7 @@
   </head>
   <body>
     <!-- Skip Link for Accessibility -->
-    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <a href="#main-content" class="skip-link" style="position:absolute;top:-100px;left:50%;transform:translateX(-50%);background:#10b981;color:#000;padding:12px 24px;font-weight:700;text-decoration:none;z-index:10000;border-radius:8px;transition:top 0.15s;" onfocus="this.style.top='12px'" onblur="this.style.top='-100px'">Skip to main content</a>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

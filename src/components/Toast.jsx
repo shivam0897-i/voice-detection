@@ -3,6 +3,7 @@ import { useState, useEffect, createContext, useContext, useCallback } from 'rea
 import { createPortal } from 'react-dom';
 import { X, AlertTriangle, CheckCircle, Info, AlertCircle } from 'lucide-react';
 import { TOAST_DURATION_MS, TOAST_TYPES } from '../constants';
+import { cn } from '@/lib/utils';
 
 // Toast Context
 const ToastContext = createContext(null);
@@ -15,6 +16,25 @@ export const useToast = () => {
   return context;
 };
 
+const TOAST_STYLES = {
+  [TOAST_TYPES.SUCCESS]: {
+    container: 'border-success-500/15 bg-card text-success-400',
+    icon: <CheckCircle size={16} aria-hidden="true" />,
+  },
+  [TOAST_TYPES.ERROR]: {
+    container: 'border-danger-500/15 bg-card text-danger-400',
+    icon: <AlertCircle size={16} aria-hidden="true" />,
+  },
+  [TOAST_TYPES.WARNING]: {
+    container: 'border-warning-500/15 bg-card text-warning-400',
+    icon: <AlertTriangle size={16} aria-hidden="true" />,
+  },
+  [TOAST_TYPES.INFO]: {
+    container: 'border-info-500/15 bg-card text-info-400',
+    icon: <Info size={16} aria-hidden="true" />,
+  },
+};
+
 // Individual Toast Component
 const ToastItem = ({ id, message, type, onClose }) => {
   useEffect(() => {
@@ -22,61 +42,23 @@ const ToastItem = ({ id, message, type, onClose }) => {
     return () => clearTimeout(timer);
   }, [id, onClose]);
 
-  const icons = {
-    [TOAST_TYPES.SUCCESS]: <CheckCircle size={18} aria-hidden="true" />,
-    [TOAST_TYPES.ERROR]: <AlertCircle size={18} aria-hidden="true" />,
-    [TOAST_TYPES.WARNING]: <AlertTriangle size={18} aria-hidden="true" />,
-    [TOAST_TYPES.INFO]: <Info size={18} aria-hidden="true" />,
-  };
-
-  const colors = {
-    [TOAST_TYPES.SUCCESS]: { bg: 'rgba(0, 255, 0, 0.1)', border: '#00ff00', text: '#00ff00' },
-    [TOAST_TYPES.ERROR]: { bg: 'rgba(255, 50, 50, 0.1)', border: '#ff3333', text: '#ff3333' },
-    [TOAST_TYPES.WARNING]: { bg: 'rgba(255, 200, 0, 0.1)', border: '#ffc800', text: '#ffc800' },
-    [TOAST_TYPES.INFO]: { bg: 'rgba(0, 200, 255, 0.1)', border: '#00c8ff', text: '#00c8ff' },
-  };
-
-  const color = colors[type] || colors[TOAST_TYPES.INFO];
+  const style = TOAST_STYLES[type] || TOAST_STYLES[TOAST_TYPES.INFO];
 
   return (
     <div
       role="alert"
       aria-live="assertive"
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '12px',
-        padding: '14px 16px',
-        background: color.bg,
-        border: `1px solid ${color.border}`,
-        color: color.text,
-        fontFamily: "'JetBrains Mono', monospace",
-        fontSize: '0.85rem',
-        minWidth: '300px',
-        maxWidth: '450px',
-        boxShadow: '0 10px 40px rgba(0,0,0,0.5)',
-        animation: 'slideIn 0.3s ease-out',
-      }}
+      className={cn(
+        'flex min-w-[300px] max-w-[420px] items-center gap-3 rounded-lg border px-4 py-3 text-[13px] shadow-2xl shadow-foreground/10 bg-card animate-slide-down',
+        style.container
+      )}
     >
-      {icons[type]}
-      <span style={{ flex: 1 }}>{message}</span>
+      {style.icon}
+      <span className="flex-1">{message}</span>
       <button
         onClick={() => onClose(id)}
         aria-label="Dismiss notification"
-        style={{
-          background: 'transparent',
-          border: 'none',
-          color: color.text,
-          cursor: 'pointer',
-          padding: '4px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          opacity: 0.7,
-          transition: 'opacity 0.2s',
-        }}
-        onMouseEnter={(e) => e.target.style.opacity = 1}
-        onMouseLeave={(e) => e.target.style.opacity = 0.7}
+        className="flex cursor-pointer items-center justify-center rounded p-1 opacity-70 transition-opacity hover:opacity-100"
       >
         <X size={16} aria-hidden="true" />
       </button>
@@ -91,28 +73,8 @@ const ToastContainer = ({ toasts, removeToast }) => {
   return createPortal(
     <div
       aria-label="Notifications"
-      style={{
-        position: 'fixed',
-        top: '20px',
-        right: '20px',
-        zIndex: 10000,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '10px',
-      }}
+      className="fixed top-5 right-5 z-[10000] flex flex-col gap-2.5"
     >
-      <style>{`
-        @keyframes slideIn {
-          from {
-            transform: translateX(100%);
-            opacity: 0;
-          }
-          to {
-            transform: translateX(0);
-            opacity: 1;
-          }
-        }
-      `}</style>
       {toasts.map((toast) => (
         <ToastItem
           key={toast.id}

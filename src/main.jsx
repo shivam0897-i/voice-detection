@@ -1,10 +1,32 @@
 ﻿import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { BrowserRouter, useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
 import { Analytics } from '@vercel/analytics/react'
+import './styles/globals.css'
 import './index.css'
-import App from './App.jsx'
+import AppRouter from './router'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
 import { ToastProvider } from './components/Toast.jsx'
+import { ThemeProvider } from './components/ui/ThemeProvider'
+
+/** Scroll to top on route change, or to hash target if present */
+function ScrollToTop() {
+  const { pathname, hash } = useLocation()
+
+  useEffect(() => {
+    if (hash) {
+      setTimeout(() => {
+        const el = document.querySelector(hash)
+        if (el) el.scrollIntoView({ behavior: 'smooth' })
+      }, 100)
+      return
+    }
+    window.scrollTo(0, 0)
+  }, [pathname, hash])
+
+  return null
+}
 
 // Register Service Worker for PWA offline support
 if ('serviceWorker' in navigator) {
@@ -35,7 +57,7 @@ if ('serviceWorker' in navigator) {
         window.location.reload()
       })
     } catch {
-      // Service worker registration/update failed - app still works online
+      // Service worker registration/update failed — app still works online
     }
   })
 }
@@ -43,10 +65,15 @@ if ('serviceWorker' in navigator) {
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <ErrorBoundary>
-      <ToastProvider>
-        <App />
-        <Analytics />
-      </ToastProvider>
+      <ThemeProvider defaultTheme="dark">
+        <ToastProvider>
+          <BrowserRouter>
+            <ScrollToTop />
+            <AppRouter />
+          </BrowserRouter>
+          <Analytics />
+        </ToastProvider>
+      </ThemeProvider>
     </ErrorBoundary>
   </StrictMode>,
 )

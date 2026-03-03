@@ -27,98 +27,36 @@ class ErrorBoundary extends React.Component {
       return (
         <div
           role="alert"
-          style={{
-            minHeight: '100vh',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: '#000',
-            color: '#fff',
-            fontFamily: "'JetBrains Mono', monospace",
-            padding: '40px',
-            textAlign: 'center',
-          }}
+          className="flex min-h-screen flex-col items-center justify-center bg-background px-6 text-center text-foreground"
         >
-          <div
-            style={{
-              padding: '60px',
-              border: '1px solid #ff3333',
-              background: 'rgba(255, 50, 50, 0.05)',
-              maxWidth: '600px',
-            }}
-          >
-            <div style={{ position: 'relative' }}>
-              <div style={{ position: 'absolute', top: '-61px', left: '-61px', width: '20px', height: '20px', borderTop: '2px solid #ff3333', borderLeft: '2px solid #ff3333' }} />
-              <div style={{ position: 'absolute', bottom: '-61px', right: '-61px', width: '20px', height: '20px', borderBottom: '2px solid #ff3333', borderRight: '2px solid #ff3333' }} />
+          <div className="relative max-w-[500px] overflow-hidden rounded-xl border border-danger-500/15 bg-card p-12">
+            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-danger-400/40 to-transparent" />
+
+            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-danger-500/[0.08] border border-danger-500/10">
+              <AlertTriangle size={28} className="text-danger-400" aria-hidden="true" />
             </div>
 
-            <AlertTriangle size={64} color="#ff3333" style={{ marginBottom: '24px' }} aria-hidden="true" />
-            
-            <h1 style={{ 
-              fontSize: '1.8rem', 
-              margin: '0 0 16px 0',
-              color: '#ff3333',
-              textTransform: 'uppercase',
-              letterSpacing: '0.1em',
-            }}>
-              System Error
+            <h1 className="mb-3 font-heading text-xl font-bold text-foreground">
+              Something went wrong
             </h1>
-            
-            <p style={{ 
-              color: '#888', 
-              fontSize: '0.9rem',
-              marginBottom: '24px',
-              lineHeight: '1.6',
-            }}>
-              An unexpected error occurred.
-              <br />
-              Your data has been preserved.
+
+            <p className="mb-6 text-[13px] leading-relaxed text-muted-foreground/70">
+              An unexpected error occurred. Your data has been preserved.
             </p>
 
             {this.state.error && (
-              <div style={{
-                background: '#111',
-                border: '1px solid #333',
-                padding: '16px',
-                marginBottom: '24px',
-                textAlign: 'left',
-                fontSize: '0.75rem',
-                color: '#ff6666',
-                overflow: 'auto',
-                maxHeight: '120px',
-              }}>
-                <div style={{ color: '#666', marginBottom: '8px' }}>// ERROR_LOG</div>
-                {this.state.error.toString()}
+              <div className="mb-6 overflow-auto rounded-xl border border-border/60 bg-muted/60 p-4 text-left font-mono text-[11px] max-h-[100px]">
+                <span className="text-muted-foreground/30">// error </span>
+                <span className="text-danger-400/80">{this.state.error.toString()}</span>
               </div>
             )}
 
             <button
               onClick={this.handleRetry}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '10px',
-                padding: '14px 28px',
-                background: '#ccff00',
-                color: '#000',
-                border: 'none',
-                fontSize: '0.9rem',
-                fontWeight: 'bold',
-                textTransform: 'uppercase',
-                cursor: 'pointer',
-                fontFamily: "'JetBrains Mono', monospace",
-                transition: 'all 0.2s ease',
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.background = '#fff';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.background = '#ccff00';
-              }}
+              className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-brand-500 px-6 py-3 text-[13px] font-semibold text-white transition-all duration-200 hover:bg-brand-400 shadow-lg shadow-brand-500/25 hover:shadow-brand-500/40"
             >
-              <RefreshCw size={16} aria-hidden="true" />
-              Reinitialize System
+              <RefreshCw size={14} aria-hidden="true" />
+              Try Again
             </button>
           </div>
         </div>
