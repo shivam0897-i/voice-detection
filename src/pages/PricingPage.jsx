@@ -101,7 +101,7 @@ export default function PricingPage() {
 
       <AnimatedSection>
         <div className="flex items-center justify-center gap-2 text-[11px] text-muted-foreground/50 pb-12 bg-background">
-          <Shield size={13} className="text-brand-400/50" />
+          <Shield size={13} className="text-primary/50" />
           All plans include: SSL encryption · No audio storage · Privacy-first · 24/7 monitoring
         </div>
       </AnimatedSection>
@@ -136,7 +136,7 @@ export default function PricingPage() {
                     <h4 className="text-[14px] font-semibold text-foreground/80">{item.q}</h4>
                     <HelpCircle size={16} className={cn(
                       'shrink-0 transition-colors',
-                      openFaq === i ? 'text-brand-400' : 'text-muted-foreground/30'
+                      openFaq === i ? 'text-primary' : 'text-muted-foreground/30'
                     )} />
                   </div>
                   <div className={cn(

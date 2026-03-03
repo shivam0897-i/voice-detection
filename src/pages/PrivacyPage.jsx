@@ -5,8 +5,8 @@ export default function PrivacyPage() {
         <div className="mx-auto max-w-3xl px-6 py-20 lg:py-28">
             {/* Header */}
             <div className="mb-12 flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-500/10">
-                    <Shield size={20} className="text-brand-400" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+                    <Shield size={20} className="text-primary" />
                 </div>
                 <div>
                     <h1 className="text-2xl font-bold text-foreground">Privacy Policy</h1>
@@ -109,7 +109,7 @@ export default function PrivacyPage() {
                             href="https://github.com/shivam0897-i/voice-detection/issues"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-brand-400 hover:text-brand-300 underline underline-offset-4"
+                            className="text-primary hover:text-primary underline underline-offset-4"
                         >
                             GitHub repository
                         </a>.

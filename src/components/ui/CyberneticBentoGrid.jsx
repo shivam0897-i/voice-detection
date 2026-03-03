@@ -55,7 +55,7 @@ export const CyberneticBentoGrid = () => {
           {/* Large card: Voice Biometrics */}
           <BentoItem className="col-span-2 row-span-2 flex flex-col justify-between">
             <div>
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-500/10 text-brand-400 mb-4">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary mb-4">
                 <AudioWaveform className="h-5 w-5" />
               </div>
               <h3 className="text-2xl font-bold text-foreground">Voice Biometrics</h3>
@@ -74,7 +74,7 @@ export const CyberneticBentoGrid = () => {
                 {Array.from({ length: 32 }).map((_, i) => (
                   <div
                     key={i}
-                    className="w-1.5 rounded-full bg-brand-400/60"
+                    className="w-1.5 rounded-full bg-primary/60"
                     style={{
                       height: `${20 + Math.sin(i * 0.5) * 30 + Math.random() * 20}%`,
                       animationName: 'waveform-pulse',
@@ -92,7 +92,7 @@ export const CyberneticBentoGrid = () => {
 
           {/* Language Intelligence */}
           <BentoItem>
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-500/10 text-brand-400 mb-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary mb-3">
               <MessageSquareText className="h-4 w-4" />
             </div>
             <h3 className="text-xl font-bold text-foreground">Language Intelligence</h3>
@@ -106,7 +106,7 @@ export const CyberneticBentoGrid = () => {
 
           {/* Behavioral Analysis */}
           <BentoItem>
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-500/10 text-brand-400 mb-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary mb-3">
               <Brain className="h-4 w-4" />
             </div>
             <h3 className="text-xl font-bold text-foreground">Behavioral Analysis</h3>
@@ -121,7 +121,7 @@ export const CyberneticBentoGrid = () => {
           {/* Sub-200ms Latency — tall card */}
           <BentoItem className="row-span-2 flex flex-col justify-between">
             <div>
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-500/10 text-brand-400 mb-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary mb-3">
                 <Zap className="h-4 w-4" />
               </div>
               <h3 className="text-xl font-bold text-foreground">Sub-200ms Latency</h3>
@@ -135,7 +135,7 @@ export const CyberneticBentoGrid = () => {
                 <span>p50: 87ms</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-brand-400" />
+                <span className="h-1.5 w-1.5 rounded-full bg-primary" />
                 <span>p95: 142ms</span>
               </div>
               <div className="flex items-center gap-2">
@@ -148,7 +148,7 @@ export const CyberneticBentoGrid = () => {
           {/* Privacy & Compliance — wide card */}
           <BentoItem className="col-span-2">
             <div className="flex items-start gap-4">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-500/10 text-brand-400">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                 <Shield className="h-4 w-4" />
               </div>
               <div>
@@ -163,7 +163,7 @@ export const CyberneticBentoGrid = () => {
 
           {/* Global Coverage */}
           <BentoItem>
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-500/10 text-brand-400 mb-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary mb-3">
               <Globe className="h-4 w-4" />
             </div>
             <h3 className="text-xl font-bold text-foreground">Global Coverage</h3>

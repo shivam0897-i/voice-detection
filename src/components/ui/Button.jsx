@@ -3,18 +3,18 @@ import { cva } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2 font-medium transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+  'inline-flex items-center justify-center gap-2 font-medium transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background',
   {
     variants: {
       variant: {
         /* shadcn-standard variants (used by Dialog, etc.) */
         default:
-          'bg-brand-500 text-white hover:bg-brand-400 active:bg-brand-600 shadow-lg shadow-brand-500/20 hover:shadow-brand-500/30',
+          'bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary shadow-lg shadow-primary/20 hover:shadow-primary/30',
         outline:
           'border border-border bg-background hover:bg-accent hover:text-foreground',
         /* project custom variants */
         primary:
-          'bg-brand-500 text-white hover:bg-brand-400 active:bg-brand-600 shadow-lg shadow-brand-500/20 hover:shadow-brand-500/30',
+          'bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary shadow-lg shadow-primary/20 hover:shadow-primary/30',
         secondary:
           'bg-accent/50 text-foreground/80 hover:bg-accent border border-border hover:border-border',
         ghost:
@@ -22,7 +22,7 @@ const buttonVariants = cva(
         danger:
           'bg-danger-500 text-white hover:bg-danger-400 shadow-lg shadow-danger-500/20',
         link:
-          'text-brand-400 hover:text-brand-300 underline-offset-4 hover:underline p-0 h-auto',
+          'text-primary hover:text-primary underline-offset-4 hover:underline p-0 h-auto',
       },
       size: {
         default: 'h-10 px-4 py-2 text-sm rounded-md',

@@ -52,7 +52,7 @@ export function ToggleTheme() {
                     {theme === option.value && (
                         <motion.div
                             layoutId="theme-option"
-                            className="absolute inset-0 rounded-full border border-brand-400/50 bg-brand-500/10"
+                            className="absolute inset-0 rounded-full border border-primary/50 bg-primary/10"
                             transition={{
                                 type: 'spring',
                                 stiffness: 300,

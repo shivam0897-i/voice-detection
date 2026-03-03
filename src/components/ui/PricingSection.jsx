@@ -129,7 +129,7 @@ function PricingToggle() {
         <div className="flex justify-center">
             <div ref={confettiRef} className="relative flex w-fit items-center rounded-full border border-border bg-accent/50 p-1">
                 <motion.div
-                    className="absolute left-0 top-0 h-full rounded-full bg-brand-500 p-1"
+                    className="absolute left-0 top-0 h-full rounded-full bg-primary p-1"
                     style={pillStyle}
                     transition={{ type: 'spring', stiffness: 500, damping: 40 }}
                 />
@@ -187,13 +187,13 @@ function PricingCard({ plan, index }) {
             className={cn(
                 'rounded-2xl p-8 flex flex-col relative bg-card/60 backdrop-blur-sm',
                 plan.isPopular
-                    ? 'border-2 border-brand-500/40 shadow-xl shadow-brand-500/10'
+                    ? 'border-2 border-primary/40 shadow-xl shadow-primary/10'
                     : 'border border-border',
             )}
         >
             {plan.isPopular && (
                 <div className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2">
-                    <div className="bg-brand-500 py-1.5 px-4 rounded-full flex items-center gap-1.5">
+                    <div className="bg-primary py-1.5 px-4 rounded-full flex items-center gap-1.5">
                         <Star className="text-primary-foreground h-4 w-4 fill-current" />
                         <span className="text-primary-foreground text-sm font-semibold">Most Popular</span>
                     </div>
@@ -237,7 +237,7 @@ function PricingCard({ plan, index }) {
                             <Check
                                 className={cn(
                                     'h-5 w-4 flex-none',
-                                    plan.isPopular ? 'text-brand-400' : 'text-muted-foreground/40'
+                                    plan.isPopular ? 'text-primary' : 'text-muted-foreground/40'
                                 )}
                                 aria-hidden="true"
                             />

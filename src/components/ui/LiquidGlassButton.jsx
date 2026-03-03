@@ -9,12 +9,12 @@ const liquidbuttonVariants = cva(
     {
         variants: {
             variant: {
-                default: 'bg-transparent hover:scale-105 duration-300 transition text-brand-400',
+                default: 'bg-transparent hover:scale-105 duration-300 transition text-primary',
                 destructive: 'bg-red-600 text-white hover:bg-red-600/90',
                 outline: 'border border-border bg-transparent hover:bg-accent/50 hover:text-foreground',
                 secondary: 'bg-accent/50 text-foreground/80 hover:bg-accent',
                 ghost: 'hover:bg-accent/50 hover:text-foreground',
-                link: 'text-brand-400 underline-offset-4 hover:underline',
+                link: 'text-primary underline-offset-4 hover:underline',
             },
             size: {
                 default: 'h-9 px-4 py-2',

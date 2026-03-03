@@ -10,8 +10,8 @@
   --card-foreground: #09090b;
   --popover: #ffffff;
   --popover-foreground: #09090b;
-  --primary: #2563eb;
-  --primary-foreground: #fafafa;
+  --primary: #059669;
+  --primary-foreground: #ffffff;
   --secondary: #f4f4f5;
   --secondary-foreground: #18181b;
   --muted: #f4f4f5;
@@ -22,7 +22,7 @@
   --destructive-foreground: #ffffff;
   --border: #e4e4e7;
   --input: #d4d4d8;
-  --ring: #3b82f6;
+  --ring: #10b981;
   --chart-1: #f16a50;
   --chart-2: #299d82;
   --chart-3: #253c48;
@@ -30,12 +30,12 @@
   --chart-5: #f99d58;
   --sidebar: #fafafa;
   --sidebar-foreground: #3f3f46;
-  --sidebar-primary: #18181b;
-  --sidebar-primary-foreground: #fafafa;
+  --sidebar-primary: #059669;
+  --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #f4f4f5;
   --sidebar-accent-foreground: #18181b;
   --sidebar-border: #e2e8f0;
-  --sidebar-ring: #3b82f6;
+  --sidebar-ring: #10b981;
   --radius: 0.5rem;
   --shadow-2xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-xs: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
@@ -61,8 +61,8 @@
   --card-foreground: #fafafa;
   --popover: #09090b;
   --popover-foreground: #fafafa;
-  --primary: #fafafa;
-  --primary-foreground: #18181b;
+  --primary: #10b981;
+  --primary-foreground: #ffffff;
   --secondary: #27272a;
   --secondary-foreground: #fafafa;
   --muted: #18181b;
@@ -73,7 +73,7 @@
   --destructive-foreground: #ffffff;
   --border: #27272a;
   --input: #27272a;
-  --ring: #3b82f6;
+  --ring: #34d399;
   --chart-1: #265dd9;
   --chart-2: #2eaf80;
   --chart-3: #f28526;
@@ -81,12 +81,12 @@
   --chart-5: #e82669;
   --sidebar: #18181b;
   --sidebar-foreground: #f4f4f5;
-  --sidebar-primary: #2563eb;
+  --sidebar-primary: #10b981;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #27272a;
   --sidebar-accent-foreground: #f4f4f5;
   --sidebar-border: #27272a;
-  --sidebar-ring: #3b82f6;
+  --sidebar-ring: #34d399;
   --shadow-2xs: 0 1px 2px 0 rgb(255 255 255 / 0.05);
   --shadow-xs: 0 1px 3px 0 rgb(0 0 0 / 0.5), 0 1px 2px -1px rgb(0 0 0 / 0.5);
   --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.5), 0 1px 2px -1px rgb(0 0 0 / 0.5);
@@ -320,6 +320,15 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+@utility scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @layer utilities {

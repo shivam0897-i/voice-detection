@@ -7,7 +7,7 @@ export default function DashboardLayout() {
     <div className="min-h-screen bg-background">
       {/* Dashboard Nav */}
       <nav className="nav-surface sticky top-0 z-50">
-        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-brand-500/20 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
         <div className="mx-auto flex h-14 max-w-[1440px] items-center justify-between px-4 sm:px-6">
           <Link
             to="/"
@@ -21,8 +21,8 @@ export default function DashboardLayout() {
             to="/dashboard"
             className="group flex items-center gap-2.5"
           >
-            <div className="relative flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-brand-500/20 to-brand-400/10">
-              <Shield size={14} className="text-brand-400" />
+            <div className="relative flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-primary/20 to-primary/10">
+              <Shield size={14} className="text-primary" />
             </div>
             <span className="font-heading text-[12px] font-bold tracking-[0.15em] text-foreground/80">
               VOICEGUARD

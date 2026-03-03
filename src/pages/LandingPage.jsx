@@ -112,7 +112,7 @@ function StatBentoCard({ stat }) {
 
   return (
     <div ref={ref} className="bento-item">
-      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-500/10 text-brand-400 mb-4">
+      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary mb-4">
         {stat.icon}
       </div>
       <span className="font-heading text-3xl font-extrabold text-foreground sm:text-4xl">
@@ -152,8 +152,8 @@ export default function LandingPage() {
                   className="group mx-auto flex w-fit items-center gap-4 rounded-full border border-border bg-card/80 p-1 pl-4 shadow-md shadow-foreground/5 transition-all duration-300 hover:border-border">
                   <span className="text-[12px] font-medium text-muted-foreground">AI-Powered Voice Fraud Detection</span>
                   <span className="block h-4 w-0.5 bg-border" />
-                  <div className="relative flex size-6 items-center justify-center overflow-hidden rounded-full bg-muted duration-500 group-hover:bg-brand-500/20">
-                    <ArrowRight className="size-3 text-brand-400 transition-transform duration-300 group-hover:translate-x-0.5" />
+                  <div className="relative flex size-6 items-center justify-center overflow-hidden rounded-full bg-muted duration-500 group-hover:bg-primary/20">
+                    <ArrowRight className="size-3 text-primary transition-transform duration-300 group-hover:translate-x-0.5" />
                   </div>
                 </Link>
               </div>
@@ -167,8 +167,8 @@ export default function LandingPage() {
               <p className="mx-auto mt-8 max-w-xl text-balance text-center text-[15px] leading-relaxed text-muted-foreground sm:text-[17px]">
                 Real-time voice fraud detection API. Identify AI-generated
                 voices during live calls with{' '}
-                <span className="font-semibold text-brand-400">97%+ accuracy</span>{' '}
-                and <span className="font-semibold text-brand-400">&lt;200ms</span> latency.
+                <span className="font-semibold text-primary">97%+ accuracy</span>{' '}
+                and <span className="font-semibold text-primary">&lt;200ms</span> latency.
               </p>
             </AnimatedGroup>
 
@@ -288,13 +288,13 @@ export default function LandingPage() {
                     <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground/60 mb-3">Session</p>
                     <p className="font-mono text-[14px] font-bold text-foreground/70">A3F8D1B6</p>
                     <div className="mt-3 flex flex-wrap gap-2">
-                      <span className="inline-flex items-center gap-1 rounded-full bg-brand-500/10 px-2.5 py-1 text-[10px] font-medium text-brand-400">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-medium text-primary">
                         <Lock size={10} /> Privacy-first
                       </span>
-                      <span className="inline-flex items-center gap-1 rounded-full bg-brand-500/10 px-2.5 py-1 text-[10px] font-medium text-brand-400">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-medium text-primary">
                         <Globe size={10} /> English
                       </span>
-                      <span className="inline-flex items-center gap-1 rounded-full bg-brand-500/10 px-2.5 py-1 text-[10px] font-medium text-brand-400">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-medium text-primary">
                         <Activity size={10} /> Streaming
                       </span>
                     </div>

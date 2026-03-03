@@ -59,22 +59,22 @@ const integrations = [
   {
     name: "REST API",
     desc: "Simple JSON endpoints for voice analysis and session management",
-    icon: <Code2 className="h-4 w-4 text-brand-400" />,
+    icon: <Code2 className="h-4 w-4 text-primary" />,
   },
   {
     name: "WebSocket Streaming",
     desc: "Real-time audio streaming with sub-200ms response times",
-    icon: <Terminal className="h-4 w-4 text-brand-400" />,
+    icon: <Terminal className="h-4 w-4 text-primary" />,
   },
   {
     name: "Webhooks",
     desc: "Instant fraud alerts pushed to your backend in real-time",
-    icon: <Webhook className="h-4 w-4 text-brand-400" />,
+    icon: <Webhook className="h-4 w-4 text-primary" />,
   },
   {
     name: "Session Management",
     desc: "Track calls end-to-end with persistent session context",
-    icon: <Cpu className="h-4 w-4 text-brand-400" />,
+    icon: <Cpu className="h-4 w-4 text-primary" />,
   },
 ];
 
@@ -138,7 +138,7 @@ export default function RuixenFeatureSection() {
           {/* Content */}
           <h3 className="text-lg sm:text-xl lg:text-2xl font-normal text-foreground leading-relaxed">
             Developer-First Dashboard{" "}
-            <span className="text-brand-400">VoiceGuard</span>{" "}
+            <span className="text-primary">VoiceGuard</span>{" "}
             <span className="text-muted-foreground/70 text-sm sm:text-base lg:text-lg">
               Ship fraud detection into your product with clean APIs, real-time dashboards, and actionable insights out of the box.
             </span>
@@ -150,7 +150,7 @@ export default function RuixenFeatureSection() {
           {/* Content */}
           <h3 className="text-lg sm:text-xl lg:text-2xl font-normal text-foreground mb-4 sm:mb-6 leading-relaxed">
             Ship in Minutes.{" "}
-            <span className="text-brand-400">Scale Forever.</span>{" "}
+            <span className="text-primary">Scale Forever.</span>{" "}
             <span className="text-muted-foreground/70 text-sm sm:text-base lg:text-lg">
               Integrate with your existing stack using VoiceGuard's
               API-ready architecture and eliminate fraud in seconds.
@@ -171,7 +171,7 @@ export default function RuixenFeatureSection() {
                   className="flex items-center justify-between p-2 sm:p-3 border border-border rounded-xl sm:rounded-2xl hover:bg-accent/50 transition"
                 >
                   <div className="flex items-center gap-2 sm:gap-3 flex-1">
-                    <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-brand-500/10 flex items-center justify-center text-sm sm:text-lg flex-shrink-0">
+                    <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-primary/10 flex items-center justify-center text-sm sm:text-lg flex-shrink-0">
                       {item.icon}
                     </div>
                     <div className="min-w-0 flex-1">
@@ -179,7 +179,7 @@ export default function RuixenFeatureSection() {
                       <p className="text-xs text-muted-foreground/70 line-clamp-1 sm:line-clamp-2">{item.desc}</p>
                     </div>
                   </div>
-                  <button className="rounded-full border border-border p-1.5 sm:p-2 text-muted-foreground/50 hover:text-brand-400 hover:border-brand-400/30 transition-colors flex-shrink-0 ml-2">
+                  <button className="rounded-full border border-border p-1.5 sm:p-2 text-muted-foreground/50 hover:text-primary hover:border-primary/30 transition-colors flex-shrink-0 ml-2">
                     <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
                   </button>
                 </div>
@@ -208,7 +208,7 @@ export default function RuixenFeatureSection() {
           </div>
         </div>
         <div className="relative">
-          <blockquote className="border-l-2 border-brand-400/30 pl-4 sm:pl-6 lg:pl-8 text-muted-foreground/70">
+          <blockquote className="border-l-2 border-primary/30 pl-4 sm:pl-6 lg:pl-8 text-muted-foreground/70">
             <p className="text-sm sm:text-base lg:text-lg leading-relaxed">
               VoiceGuard's API was the fastest security integration we've ever done. From first API call to production deployment in under 4 hours — with real-time deepfake detection on every call.
             </p>

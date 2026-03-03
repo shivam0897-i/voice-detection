@@ -67,8 +67,8 @@ export default function Testimonials() {
           <Card className="grid grid-rows-[auto_1fr] gap-8 sm:col-span-2 sm:p-6 lg:row-span-2">
             <CardHeader className="pb-0">
               <div className="flex items-center gap-2">
-                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-500/10">
-                  <Shield size={14} className="text-brand-400" />
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
+                  <Shield size={14} className="text-primary" />
                 </div>
                 <span className="font-heading text-[11px] font-bold tracking-[0.12em] text-muted-foreground/60">
                   VOICEGUARD

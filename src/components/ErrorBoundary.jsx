@@ -53,7 +53,7 @@ class ErrorBoundary extends React.Component {
 
             <button
               onClick={this.handleRetry}
-              className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-brand-500 px-6 py-3 text-[13px] font-semibold text-white transition-all duration-200 hover:bg-brand-400 shadow-lg shadow-brand-500/25 hover:shadow-brand-500/40"
+              className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-primary px-6 py-3 text-[13px] font-semibold text-white transition-all duration-200 hover:bg-primary shadow-lg shadow-primary/25 hover:shadow-primary/40"
             >
               <RefreshCw size={14} aria-hidden="true" />
               Try Again

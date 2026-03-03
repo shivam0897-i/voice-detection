@@ -8,6 +8,8 @@ const LandingPage = lazy(() => import('./pages/LandingPage'));
 const PricingPage = lazy(() => import('./pages/PricingPage'));
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
 const DashboardPage = lazy(() => import('./pages/DashboardPage'));
+const DocsPage = lazy(() => import('./pages/DocsPage'));
+const ApiReferencePage = lazy(() => import('./pages/ApiReferencePage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 /* ── Route-level loading fallback ──────────────────── */
@@ -15,7 +17,7 @@ function PageLoader() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background">
       <div className="flex flex-col items-center gap-4">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-border/50 border-t-brand-500" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-border/50 border-t-primary" />
         <span className="text-[12px] text-muted-foreground/40">Loading…</span>
       </div>
     </div>
@@ -31,6 +33,8 @@ function PageLoader() {
  *     ├── /pricing    → PricingPage
  *     ├── /privacy    → PrivacyPage
  *     └── *           → NotFoundPage
+ *   /docs             → DocsPage (standalone layout)
+ *   /api-reference    → ApiReferencePage (standalone layout)
  *   /dashboard (DashboardLayout — compact topbar)
  *     └── /dashboard  → DashboardPage
  */
@@ -47,6 +51,10 @@ export default function AppRouter() {
           <Route path="privacy" element={<PrivacyPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
+
+        {/* Docs — standalone layout with own header */}
+        <Route path="docs" element={<DocsPage />} />
+        <Route path="api-reference" element={<ApiReferencePage />} />
 
         {/* Dashboard — own layout with compact nav */}
         <Route path="dashboard" element={<DashboardLayout />}>

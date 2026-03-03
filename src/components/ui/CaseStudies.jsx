@@ -181,7 +181,7 @@ export default function CaseStudies() {
                   <figure className="flex flex-col justify-between gap-8 text-left">
                     <blockquote className="text-lg sm:text-xl leading-relaxed text-left">
                       <h3 className="text-lg sm:text-xl lg:text-xl font-normal text-foreground leading-relaxed text-left">
-                        <study.icon className="inline-block h-5 w-5 text-brand-400 mr-2 -mt-0.5" />
+                        <study.icon className="inline-block h-5 w-5 text-primary mr-2 -mt-0.5" />
                         {study.heading}{" "}
                         <span className="block text-muted-foreground text-sm sm:text-base lg:text-lg mt-2">
                           {study.quote}

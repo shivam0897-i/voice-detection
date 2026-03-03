@@ -31,7 +31,7 @@ export default function TocDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <button className="text-[13px] text-muted-foreground/80 transition-colors hover:text-brand-400 cursor-pointer bg-transparent border-none p-0 text-left">
+        <button className="text-[13px] text-muted-foreground/80 transition-colors hover:text-primary cursor-pointer bg-transparent border-none p-0 text-left">
           Terms &amp; Conditions
         </button>
       </DialogTrigger>

@@ -16,8 +16,8 @@ const footerSections = [
   {
     title: 'Resources',
     links: [
-      { label: 'Documentation', to: '/#how-it-works', internal: true },
-      { label: 'API Reference', to: '/#how-it-works', internal: true },
+      { label: 'Documentation', to: '/docs', internal: true },
+      { label: 'API Reference', to: '/api-reference', internal: true },
     ],
   },
   {
@@ -58,7 +58,7 @@ export default function Footer() {
   return (
     <footer className="relative border-t border-border/50 bg-background overflow-hidden" role="contentinfo">
       {/* Subtle top glow */}
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-500/30 to-transparent" />
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
 
       {/* Ambient background radial gradient — inspired by footer2 */}
       <div
@@ -66,7 +66,7 @@ export default function Footer() {
         className="absolute inset-0 z-0 pointer-events-none"
         style={{
           background:
-            'radial-gradient(125% 125% at 50% 100%, transparent 50%, hsl(var(--color-brand-400) / 0.03) 100%)',
+            'radial-gradient(125% 125% at 50% 100%, transparent 50%, hsl(var(--color-primary) / 0.03) 100%)',
         }}
       />
 
@@ -78,8 +78,8 @@ export default function Footer() {
               to="/"
               className="group flex items-center gap-2.5 w-fit"
             >
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-brand-500/20 to-brand-400/10">
-                <Shield size={16} className="text-brand-400" />
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary/20 to-primary/10">
+                <Shield size={16} className="text-primary" />
               </div>
               <span className="font-heading text-[13px] font-bold tracking-[0.15em] text-foreground/90">
                 VOICEGUARD
@@ -108,7 +108,7 @@ export default function Footer() {
                     {link.internal ? (
                       <Link
                         to={link.to}
-                        className="text-[13px] text-muted-foreground/80 transition-colors hover:text-brand-400"
+                        className="text-[13px] text-muted-foreground/80 transition-colors hover:text-primary"
                       >
                         {link.label}
                       </Link>
@@ -119,7 +119,7 @@ export default function Footer() {
                         href={link.to}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-[13px] text-muted-foreground/80 transition-colors hover:text-brand-400"
+                        className="text-[13px] text-muted-foreground/80 transition-colors hover:text-primary"
                       >
                         {link.label}
                       </a>
@@ -146,7 +146,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={label}
-                className="flex h-8 w-8 items-center justify-center rounded-full border border-border/50 text-muted-foreground/50 transition-all duration-200 hover:border-brand-400/30 hover:text-brand-400 hover:bg-brand-500/5"
+                className="flex h-8 w-8 items-center justify-center rounded-full border border-border/50 text-muted-foreground/50 transition-all duration-200 hover:border-primary/30 hover:text-primary hover:bg-primary/5"
               >
                 {icon}
               </a>
