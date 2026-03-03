@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/Badge';
 import AnimatedSection from '@/components/ui/AnimatedSection';
 import { AnimatedGroup } from '@/components/ui/AnimatedGroup';
 import CaseStudies from '@/components/ui/CaseStudies';
+import Testimonials from '@/components/ui/testimonials';
 import { CyberneticBentoGrid } from '@/components/ui/CyberneticBentoGrid';
 import RuixenFeatureSection from '@/components/ui/RuixenFeatureSection';
 import { cn } from '@/lib/utils';
@@ -151,15 +152,8 @@ export default function LandingPage() {
                   className="group mx-auto flex w-fit items-center gap-4 rounded-full border border-border bg-card/80 p-1 pl-4 shadow-md shadow-foreground/5 transition-all duration-300 hover:border-border">
                   <span className="text-[12px] font-medium text-muted-foreground">AI-Powered Voice Fraud Detection</span>
                   <span className="block h-4 w-0.5 bg-border" />
-                  <div className="flex h-6 w-6 items-center justify-center overflow-hidden rounded-full bg-muted duration-500 group-hover:bg-brand-500/20">
-                    <div className="flex w-12 -translate-x-1/2 duration-500 ease-in-out group-hover:translate-x-0">
-                      <span className="flex size-6 items-center justify-center">
-                        <ArrowRight className="size-3 text-brand-400" />
-                      </span>
-                      <span className="flex size-6 items-center justify-center">
-                        <ArrowRight className="size-3 text-brand-400" />
-                      </span>
-                    </div>
+                  <div className="relative flex size-6 items-center justify-center overflow-hidden rounded-full bg-muted duration-500 group-hover:bg-brand-500/20">
+                    <ArrowRight className="size-3 text-brand-400 transition-transform duration-300 group-hover:translate-x-0.5" />
                   </div>
                 </Link>
               </div>
@@ -243,7 +237,7 @@ export default function LandingPage() {
                 <p className="mb-4 text-center font-mono text-[11px] font-medium uppercase tracking-[0.15em] text-muted-foreground/60">
                   Product Preview
                 </p>
-                <div className="bento-grid" style={{ gridTemplateColumns: '1.2fr 1fr' }}>
+                <div className="grid grid-cols-1 sm:grid-cols-[1.2fr_1fr] gap-4">
                   {/* Risk Score card — tall */}
                   <div className="bento-item row-span-2">
                     <div className="flex items-center justify-between mb-4">
@@ -315,7 +309,7 @@ export default function LandingPage() {
 
       <section className="relative border-y border-border/50 bg-card py-16">
         <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
-          <div className="bento-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {STATS.map((stat, i) => (
               <AnimatedSection key={stat.label} delay={i * 80}>
                 <StatBentoCard stat={stat} />
@@ -337,7 +331,10 @@ export default function LandingPage() {
         </AnimatedSection>
       </section>
 
-      <CaseStudies />
+
+      <AnimatedSection>
+        <Testimonials />
+      </AnimatedSection>
 
       <section className="relative overflow-hidden py-16">
         <AnimatedSection>

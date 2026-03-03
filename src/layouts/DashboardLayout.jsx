@@ -33,7 +33,7 @@ export default function DashboardLayout() {
             </div>
           </Link>
 
-          <div className="w-16" />
+          <div className="hidden sm:block w-16" />
         </div>
       </nav>
 

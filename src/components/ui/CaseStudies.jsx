@@ -132,7 +132,7 @@ const caseStudies = [
 export default function CaseStudies() {
   return (
     <section
-      className="py-28 bg-background"
+      className="py-14 sm:py-20 lg:py-28 bg-background"
       aria-labelledby="case-studies-heading"
     >
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -152,7 +152,7 @@ export default function CaseStudies() {
         </div>
 
         {/* Cases */}
-        <div className="mt-20 flex flex-col gap-20">
+        <div className="mt-10 sm:mt-16 lg:mt-20 flex flex-col gap-10 sm:gap-16 lg:gap-20">
           {caseStudies.map((study, idx) => {
             const reversed = idx % 2 === 1;
             return (

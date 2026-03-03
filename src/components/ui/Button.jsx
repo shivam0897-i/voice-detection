@@ -7,6 +7,12 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
+        /* shadcn-standard variants (used by Dialog, etc.) */
+        default:
+          'bg-brand-500 text-white hover:bg-brand-400 active:bg-brand-600 shadow-lg shadow-brand-500/20 hover:shadow-brand-500/30',
+        outline:
+          'border border-border bg-background hover:bg-accent hover:text-foreground',
+        /* project custom variants */
         primary:
           'bg-brand-500 text-white hover:bg-brand-400 active:bg-brand-600 shadow-lg shadow-brand-500/20 hover:shadow-brand-500/30',
         secondary:
@@ -19,6 +25,7 @@ const buttonVariants = cva(
           'text-brand-400 hover:text-brand-300 underline-offset-4 hover:underline p-0 h-auto',
       },
       size: {
+        default: 'h-10 px-4 py-2 text-sm rounded-md',
         sm: 'h-8 px-3 text-[12px] rounded',
         md: 'h-10 px-5 text-[13px] rounded-lg',
         lg: 'h-12 px-7 text-[14px] rounded-lg',

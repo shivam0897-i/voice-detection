@@ -118,7 +118,9 @@ export default function SiteNav() {
         </div>
 
         <div className="flex items-center gap-3">
-          <ToggleTheme />
+          <div className="hidden md:block">
+            <ToggleTheme />
+          </div>
           <Link to="/dashboard" className="hidden sm:block">
             <MetalButton variant="primary">
               Try Demo
@@ -152,7 +154,7 @@ export default function SiteNav() {
             <Link
               key={link.name}
               to={link.url}
-              onClick={(e) => handleNavClick(link.url, e)}
+              onClick={(e) => { handleNavClick(link.url, e); setMobileOpen(false); }}
               className="block border-b border-border/50 px-2 py-3 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground last:border-0"
             >
               {link.name}

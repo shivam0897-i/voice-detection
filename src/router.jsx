@@ -1,11 +1,12 @@
 import { lazy, Suspense } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import MarketingLayout from './layouts/MarketingLayout';
 import DashboardLayout from './layouts/DashboardLayout';
 
 /* ── Lazy-loaded pages ─────────────────────────────── */
 const LandingPage = lazy(() => import('./pages/LandingPage'));
 const PricingPage = lazy(() => import('./pages/PricingPage'));
+const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
 const DashboardPage = lazy(() => import('./pages/DashboardPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
@@ -28,18 +29,22 @@ function PageLoader() {
  *   / (MarketingLayout — SiteNav + Footer)
  *     ├── /           → LandingPage
  *     ├── /pricing    → PricingPage
+ *     ├── /privacy    → PrivacyPage
  *     └── *           → NotFoundPage
  *   /dashboard (DashboardLayout — compact topbar)
  *     └── /dashboard  → DashboardPage
  */
 export default function AppRouter() {
+  const location = useLocation();
+
   return (
     <Suspense fallback={<PageLoader />}>
-      <Routes>
+      <Routes location={location} key={location.pathname}>
         {/* Marketing pages — shared nav + footer */}
         <Route element={<MarketingLayout />}>
           <Route index element={<LandingPage />} />
           <Route path="pricing" element={<PricingPage />} />
+          <Route path="privacy" element={<PrivacyPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
 
@@ -51,3 +56,4 @@ export default function AppRouter() {
     </Suspense>
   );
 }
+

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
-import { Shield } from 'lucide-react';
+import { Shield, Github, Twitter, Linkedin } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
+import TocDialog from '@/components/ui/terms-conditions';
 
 const footerSections = [
   {
@@ -29,19 +30,47 @@ const footerSections = [
   {
     title: 'Legal',
     links: [
-      { label: 'Privacy Policy', to: '#', internal: false },
-      { label: 'Terms of Service', to: '#', internal: false },
+      { label: 'Privacy Policy', to: '/privacy', internal: true },
+      { label: 'Terms of Service', to: '__dialog__', internal: false, isDialog: true },
     ],
+  },
+];
+
+const socialLinks = [
+  {
+    icon: <Github size={16} />,
+    label: 'GitHub',
+    href: 'https://github.com/shivam0897-i/voice-detection',
+  },
+  {
+    icon: <Twitter size={16} />,
+    label: 'Twitter',
+    href: '#',
+  },
+  {
+    icon: <Linkedin size={16} />,
+    label: 'LinkedIn',
+    href: '#',
   },
 ];
 
 export default function Footer() {
   return (
-    <footer className="relative border-t border-border/50 bg-background" role="contentinfo">
+    <footer className="relative border-t border-border/50 bg-background overflow-hidden" role="contentinfo">
       {/* Subtle top glow */}
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-500/30 to-transparent" />
 
-      <div className="mx-auto max-w-7xl px-6 py-16 lg:px-8">
+      {/* Ambient background radial gradient — inspired by footer2 */}
+      <div
+        aria-hidden
+        className="absolute inset-0 z-0 pointer-events-none"
+        style={{
+          background:
+            'radial-gradient(125% 125% at 50% 100%, transparent 50%, hsl(var(--color-brand-400) / 0.03) 100%)',
+        }}
+      />
+
+      <div className="relative z-10 mx-auto max-w-7xl px-6 py-16 lg:px-8">
         <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:grid-cols-6 lg:gap-10">
           {/* Brand */}
           <div className="col-span-2 flex flex-col gap-5">
@@ -83,9 +112,13 @@ export default function Footer() {
                       >
                         {link.label}
                       </Link>
+                    ) : link.isDialog ? (
+                      <TocDialog />
                     ) : (
                       <a
                         href={link.to}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="text-[13px] text-muted-foreground/80 transition-colors hover:text-brand-400"
                       >
                         {link.label}
@@ -103,8 +136,21 @@ export default function Footer() {
           <span className="text-[11px] text-muted-foreground/40">
             © {new Date().getFullYear()} VoiceGuard. All rights reserved.
           </span>
-          <div className="flex items-center gap-2 text-[11px] text-muted-foreground/40">
-            <span>VoiceGuard &middot; Voice fraud detection for modern teams</span>
+
+          {/* Social icons */}
+          <div className="flex items-center gap-3">
+            {socialLinks.map(({ icon, label, href }) => (
+              <a
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={label}
+                className="flex h-8 w-8 items-center justify-center rounded-full border border-border/50 text-muted-foreground/50 transition-all duration-200 hover:border-brand-400/30 hover:text-brand-400 hover:bg-brand-500/5"
+              >
+                {icon}
+              </a>
+            ))}
           </div>
         </div>
       </div>
