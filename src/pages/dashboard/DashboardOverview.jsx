@@ -3,7 +3,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { getUserProfile, getUserHistory, FREE_TIER_LIMIT } from '@/lib/db';
 import { Activity, Clock, Shield, AlertTriangle } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/Button';
 
 export default function DashboardOverview() {
   const { user } = useAuth();

@@ -4,7 +4,7 @@ import confetti from 'canvas-confetti';
 import { Link } from 'react-router-dom';
 import { Check, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/Button';
 import Particles from '@/components/ui/demo-particles';
 
 const PricingContext = createContext({

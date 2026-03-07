@@ -7,7 +7,7 @@ import {
   Cpu, Languages, AlertTriangle, Activity,
   FileCode, Terminal, Webhook, ArrowRight,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/Button';
 import Particles from '@/components/ui/demo-particles';
 import Hero from '@/components/ui/hero-button-expendable';
 import { Badge } from '@/components/ui/Badge';
