@@ -63,8 +63,8 @@ export default function DashboardOverview() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         
         {/* Usage Stat */}
-        <div className="relative group overflow-hidden rounded-[24px] bg-card/40 border border-white/[0.05] p-6 flex flex-col justify-between transition-all duration-300 hover:bg-card/60">
-          <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent pointer-events-none" />
+        <div className="relative group overflow-hidden rounded-[24px] bg-card/40 border border-border/50 p-6 flex flex-col justify-between transition-all duration-300 hover:bg-card/60">
+          <div className="absolute inset-0 bg-gradient-to-br from-foreground/[0.02] to-transparent pointer-events-none" />
           <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-[40px] -translate-y-1/2 translate-x-1/2 group-hover:bg-primary/20 transition-colors duration-500" />
           
           <div className="relative z-10 flex items-center justify-between mb-4">
@@ -83,7 +83,7 @@ export default function DashboardOverview() {
             </div>
             
             {/* Progress Bar */}
-            <div className="w-full bg-background/50 rounded-full h-1.5 mt-5 border border-white/[0.02] overflow-hidden">
+            <div className="w-full bg-background/50 rounded-full h-1.5 mt-5 border border-border/30 overflow-hidden">
               <div 
                 className={`h-full rounded-full transition-all duration-1000 ease-out ${isDanger ? 'bg-destructive shadow-[0_0_10px_rgba(239,68,68,0.5)]' : 'bg-primary shadow-[0_0_10px_rgba(16,185,129,0.5)]'}`} 
                 style={{ width: `${Math.min((used / limit) * 100, 100)}%` }}
@@ -93,8 +93,8 @@ export default function DashboardOverview() {
         </div>
 
         {/* Tier Stat */}
-        <div className="relative group overflow-hidden rounded-[24px] bg-card/40 border border-white/[0.05] p-6 flex flex-col justify-between transition-all duration-300 hover:bg-card/60">
-          <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent pointer-events-none" />
+        <div className="relative group overflow-hidden rounded-[24px] bg-card/40 border border-border/50 p-6 flex flex-col justify-between transition-all duration-300 hover:bg-card/60">
+          <div className="absolute inset-0 bg-gradient-to-br from-foreground/[0.02] to-transparent pointer-events-none" />
           <div className="absolute bottom-0 left-0 w-32 h-32 bg-primary/10 rounded-full blur-[40px] translate-y-1/2 -translate-x-1/2 group-hover:bg-primary/20 transition-colors duration-500" />
           
           <div className="relative z-10 flex items-center justify-between mb-4">
@@ -115,7 +115,7 @@ export default function DashboardOverview() {
         </div>
 
         {/* CTA */}
-        <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-primary/20 via-primary/5 to-transparent border border-primary/20 p-6 flex flex-col justify-center items-center text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
+        <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-primary/20 via-primary/5 to-transparent border border-primary/20 p-6 flex flex-col justify-center items-center text-center shadow-[inset_0_1px_0_theme(colors.foreground/10%)]">
           <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay"></div>
           
           <div className="relative z-10 w-full">
@@ -138,10 +138,10 @@ export default function DashboardOverview() {
       </div>
 
       {/* Recent History Table */}
-      <div className="relative overflow-hidden rounded-[24px] bg-card/40 border border-white/[0.05] backdrop-blur-md">
-        <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent pointer-events-none" />
+      <div className="relative overflow-hidden rounded-[24px] bg-card/40 border border-border/50 backdrop-blur-md">
+        <div className="absolute inset-0 bg-gradient-to-b from-foreground/[0.02] to-transparent pointer-events-none" />
         
-        <div className="relative z-10 p-6 border-b border-white/[0.05] flex items-center justify-between">
+        <div className="relative z-10 p-6 border-b border-border/50 flex items-center justify-between">
           <h2 className="text-lg font-heading font-bold text-foreground">Recent Scans</h2>
           <Link to="/dashboard/history" className="text-sm text-primary hover:text-primary/80 font-medium transition-colors">
             View All History →
@@ -158,7 +158,7 @@ export default function DashboardOverview() {
         ) : (
           <div className="relative z-10 overflow-x-auto">
             <table className="w-full text-sm text-left">
-              <thead className="text-[11px] text-muted-foreground uppercase tracking-wider bg-background/30 border-b border-white/[0.05]">
+              <thead className="text-[11px] text-muted-foreground uppercase tracking-wider bg-background/30 border-b border-border/50">
                 <tr>
                   <th className="px-6 py-4 font-medium">Source / File</th>
                   <th className="px-6 py-4 font-medium">Classification</th>
@@ -166,7 +166,7 @@ export default function DashboardOverview() {
                   <th className="px-6 py-4 font-medium text-right">Date</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/[0.02]">
+              <tbody className="divide-y divide-border/50">
                 {recentScans.map((scan) => (
                   <tr key={scan.id} className="hover:bg-background/40 transition-colors group">
                     <td className="px-6 py-4 text-foreground/90 font-medium max-w-[200px] truncate" title={scan.fileName}>

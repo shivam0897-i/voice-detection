@@ -86,10 +86,10 @@ export default function SettingsPage() {
 
       <div className="grid gap-6">
         {/* Profile Card */}
-        <div className="relative overflow-hidden rounded-[24px] bg-card/40 border border-white/[0.05] backdrop-blur-md">
-          <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent pointer-events-none" />
+        <div className="relative overflow-hidden rounded-[24px] bg-card/40 border border-border/50 backdrop-blur-md">
+          <div className="absolute inset-0 bg-gradient-to-b from-foreground/[0.02] to-transparent pointer-events-none" />
           
-          <div className="relative z-10 px-6 py-4 border-b border-white/[0.05] bg-background/30">
+          <div className="relative z-10 px-6 py-4 border-b border-border/50 bg-background/30">
             <h2 className="font-semibold flex items-center gap-2 text-foreground/90">
               <User className="w-4 h-4 text-primary" /> 
               Profile Details
@@ -101,7 +101,7 @@ export default function SettingsPage() {
                 <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">
                   Display Name
                 </label>
-                <div className="px-4 py-3 bg-background/50 border border-white/[0.05] rounded-xl font-medium text-foreground/90 shadow-[inset_0_1px_0_rgba(255,255,255,0.02)]">
+                <div className="px-4 py-3 bg-background/50 border border-border/50 rounded-xl font-medium text-foreground/90 shadow-[inset_0_1px_0_theme(colors.foreground/5%)]">
                   {user?.displayName || 'Not Set'}
                 </div>
               </div>
@@ -109,7 +109,7 @@ export default function SettingsPage() {
                 <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">
                   Email Address
                 </label>
-                <div className="px-4 py-3 bg-background/50 border border-white/[0.05] rounded-xl font-medium flex items-center gap-2 text-foreground/90 shadow-[inset_0_1px_0_rgba(255,255,255,0.02)]">
+                <div className="px-4 py-3 bg-background/50 border border-border/50 rounded-xl font-medium flex items-center gap-2 text-foreground/90 shadow-[inset_0_1px_0_theme(colors.foreground/5%)]">
                   <Mail className="w-4 h-4 text-muted-foreground/50" />
                   {user?.email}
                 </div>
@@ -120,7 +120,7 @@ export default function SettingsPage() {
               <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">
                 Account ID
               </label>
-              <div className="px-4 py-3 bg-background/50 border border-white/[0.05] rounded-xl font-mono text-sm text-muted-foreground/70 overflow-hidden text-ellipsis shadow-[inset_0_1px_0_rgba(255,255,255,0.02)]">
+              <div className="px-4 py-3 bg-background/50 border border-border/50 rounded-xl font-mono text-sm text-muted-foreground/70 overflow-hidden text-ellipsis shadow-[inset_0_1px_0_theme(colors.foreground/5%)]">
                 {user?.uid}
               </div>
             </div>
@@ -128,11 +128,11 @@ export default function SettingsPage() {
         </div>
 
         {/* Subscription Plan */}
-        <div className="relative overflow-hidden rounded-[24px] bg-card/40 border border-white/[0.05] backdrop-blur-md group">
-          <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent pointer-events-none" />
+        <div className="relative overflow-hidden rounded-[24px] bg-card/40 border border-border/50 backdrop-blur-md group">
+          <div className="absolute inset-0 bg-gradient-to-br from-foreground/[0.02] to-transparent pointer-events-none" />
           <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-[60px] -translate-y-1/2 translate-x-1/3 group-hover:bg-primary/20 transition-colors duration-500" />
           
-          <div className="relative z-10 px-6 py-4 border-b border-white/[0.05] bg-background/30">
+          <div className="relative z-10 px-6 py-4 border-b border-border/50 bg-background/30">
             <h2 className="font-semibold flex items-center gap-2 text-foreground/90">
               <Shield className="w-4 h-4 text-primary" /> 
               Subscription Plan
@@ -163,15 +163,15 @@ export default function SettingsPage() {
                     </div> Up to 20 scans total
                   </li>
                   <li className="flex items-center gap-3 opacity-60">
-                    <div className="w-5 h-5 rounded-full bg-muted/30 flex items-center justify-center border border-white/[0.05]">
+                    <div className="w-5 h-5 rounded-full bg-muted/30 flex items-center justify-center border border-border/50">
                       <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/30" />
                     </div> API Access (Pro only)
                   </li>
                 </ul>
               </div>
 
-              <div className="bg-background/40 border border-white/[0.05] p-6 rounded-[20px] min-w-[220px] text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.02)] relative overflow-hidden group/upgrade">
-                <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent pointer-events-none" />
+              <div className="bg-background/40 border border-border/50 p-6 rounded-[20px] min-w-[220px] text-center shadow-[inset_0_1px_0_theme(colors.foreground/5%)] relative overflow-hidden group/upgrade">
+                <div className="absolute inset-0 bg-gradient-to-b from-foreground/[0.02] to-transparent pointer-events-none" />
                 
                 <div className="relative z-10 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4 border border-primary/20 group-hover/upgrade:scale-110 transition-transform duration-300">
                   <Zap className="w-6 h-6 text-primary" />
@@ -187,10 +187,10 @@ export default function SettingsPage() {
         </div>
 
         {/* Security */}
-        <div className="relative overflow-hidden rounded-[24px] bg-card/40 border border-white/[0.05] backdrop-blur-md">
-          <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent pointer-events-none" />
+        <div className="relative overflow-hidden rounded-[24px] bg-card/40 border border-border/50 backdrop-blur-md">
+          <div className="absolute inset-0 bg-gradient-to-b from-foreground/[0.02] to-transparent pointer-events-none" />
           
-          <div className="relative z-10 px-6 py-4 border-b border-white/[0.05] bg-background/30">
+          <div className="relative z-10 px-6 py-4 border-b border-border/50 bg-background/30">
             <h2 className="font-semibold flex items-center gap-2 text-foreground/90">
               <Key className="w-4 h-4 text-primary" /> 
               Security
@@ -206,7 +206,7 @@ export default function SettingsPage() {
                 variant="outline" 
                 onClick={handlePasswordReset}
                 disabled={isResetting || !user?.email}
-                className="bg-background/50 border-white/[0.05] hover:bg-background/80"
+                className="bg-background/50 border-border/50 hover:bg-background/80"
               >
                 {isResetting ? 'Sending Email...' : 'Send Password Reset Email'}
               </Button>

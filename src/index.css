@@ -70,6 +70,16 @@
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* === Glass Components === */
+  --color-glass-bg: rgba(10, 10, 10, 0.4);
+  --color-glass-border: rgba(255, 255, 255, 0.05);
+  --color-glass-hover: rgba(10, 10, 10, 0.6);
+  --color-glass-hover-border: rgba(255, 255, 255, 0.08);
+  --color-glass-strong: rgba(255, 255, 255, 0.1);
+  --color-glass-gradient: rgba(255, 255, 255, 0.02);
+  --color-glass-active: rgba(255, 255, 255, 0.03);
+  --color-glass-active-strong: rgba(255, 255, 255, 0.12);
 }
 
 /* === Light Theme Overrides for Dashboard === */
@@ -98,6 +108,15 @@
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.1);
   --shadow-glow: 0 0 20px rgba(16, 185, 129, 0.1);
+
+  --color-glass-bg: rgba(255, 255, 255, 0.7);
+  --color-glass-border: rgba(0, 0, 0, 0.08);
+  --color-glass-hover: rgba(255, 255, 255, 0.9);
+  --color-glass-hover-border: rgba(0, 0, 0, 0.15);
+  --color-glass-strong: rgba(0, 0, 0, 0.15);
+  --color-glass-gradient: rgba(0, 0, 0, 0.03);
+  --color-glass-active: rgba(0, 0, 0, 0.05);
+  --color-glass-active-strong: rgba(0, 0, 0, 0.12);
 }
 
 /* === Reset === */
@@ -357,10 +376,10 @@ body {
 
 /* === Card (generic panel) === */
 .card {
-  background: rgba(10, 10, 10, 0.4);
+  background: var(--color-glass-bg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--color-glass-border);
   border-radius: 24px;
   padding: var(--space-6);
   margin-bottom: var(--space-4);
@@ -374,13 +393,13 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom right, rgba(255, 255, 255, 0.02), transparent);
+  background: linear-gradient(to bottom right, var(--color-glass-gradient), transparent);
   pointer-events: none;
 }
 
 .card:hover {
-  border-color: rgba(255, 255, 255, 0.08);
-  background: rgba(10, 10, 10, 0.6);
+  border-color: var(--color-glass-hover-border);
+  background: var(--color-glass-hover);
 }
 
 .card-label {
@@ -397,9 +416,9 @@ body {
 .mode-tabs {
   display: flex;
   gap: 4px;
-  background: rgba(10, 10, 10, 0.4);
+  background: var(--color-glass-bg);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--color-glass-border);
   border-radius: 12px;
   padding: 4px;
   margin-bottom: var(--space-4);
@@ -427,8 +446,8 @@ body {
 
 .mode-tab:hover:not(:disabled) {
   color: var(--color-text);
-  background: rgba(255, 255, 255, 0.03);
-  border-color: rgba(255, 255, 255, 0.05);
+  background: var(--color-glass-active);
+  border-color: var(--color-glass-border);
 }
 
 .mode-tab.active {
@@ -467,9 +486,9 @@ body {
   gap: var(--space-2);
   padding: var(--space-3);
   min-height: 48px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--color-glass-border);
   border-radius: 12px;
-  background: rgba(10, 10, 10, 0.4);
+  background: var(--color-glass-bg);
   backdrop-filter: blur(8px);
   color: var(--color-text-muted);
   font-family: var(--font-body);
@@ -599,9 +618,9 @@ body {
 .drop-zone {
   width: 100%;
   min-height: 220px;
-  border: 2px dashed rgba(255, 255, 255, 0.1);
+  border: 2px dashed var(--color-glass-strong);
   border-radius: 24px;
-  background: rgba(10, 10, 10, 0.4);
+  background: var(--color-glass-bg);
   backdrop-filter: blur(12px);
   display: flex;
   flex-direction: column;
@@ -763,10 +782,10 @@ body {
 
 /* === Result Card === */
 .result-card {
-  background: rgba(10, 10, 10, 0.4);
+  background: var(--color-glass-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--color-glass-border);
   border-radius: 24px;
   overflow: hidden;
   margin-bottom: var(--space-6);
@@ -779,7 +798,7 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom right, rgba(255, 255, 255, 0.02), transparent);
+  background: linear-gradient(to bottom right, var(--color-glass-gradient), transparent);
   pointer-events: none;
 }
 
@@ -1925,4 +1944,5 @@ a:focus-visible {
  min-width: 44px;
  }
 }
+
 

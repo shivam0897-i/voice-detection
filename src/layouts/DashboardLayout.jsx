@@ -36,14 +36,14 @@ export default function DashboardLayout() {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-64 bg-card/40 backdrop-blur-xl border-r border-white/[0.05] transition-transform duration-300 lg:static lg:translate-x-0 flex flex-col shadow-[1px_0_30px_rgba(0,0,0,0.2)]",
+          "fixed inset-y-0 left-0 z-50 w-64 bg-card/40 backdrop-blur-xl border-r border-border/50 transition-transform duration-300 lg:static lg:translate-x-0 flex flex-col shadow-[1px_0_30px_rgba(0,0,0,0.2)]",
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-foreground/[0.02] to-transparent pointer-events-none" />
         
         {/* Sidebar Header */}
-        <div className="relative z-10 h-20 flex items-center px-6 border-b border-white/[0.05]">
+        <div className="relative z-10 h-20 flex items-center px-6 border-b border-border/50">
           <div className="flex items-center gap-2 text-primary">
             <Shield className="w-6 h-6" />
             <span className="font-heading font-bold tracking-widest uppercase text-sm">VoiceGuard</span>
@@ -68,8 +68,8 @@ export default function DashboardLayout() {
                 cn(
                   "flex items-center gap-3 px-3 py-3 rounded-[14px] transition-all duration-300 text-sm font-medium relative group overflow-hidden",
                   isActive
-                    ? "bg-primary/10 text-primary border border-primary/20 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
-                    : "text-muted-foreground hover:bg-white/[0.02] border border-transparent hover:border-white/[0.05] hover:text-foreground"
+                    ? "bg-primary/10 text-primary border border-primary/20 shadow-[inset_0_1px_0_theme(colors.foreground/5%)]"
+                    : "text-muted-foreground hover:bg-foreground/[0.02] border border-transparent hover:border-border/50 hover:text-foreground"
                 )
               }
             >
@@ -91,9 +91,9 @@ export default function DashboardLayout() {
         </nav>
 
         {/* Sidebar Footer */}
-        <div className="relative z-10 p-4 border-t border-white/[0.05] mt-auto bg-background/20">
-          <div className="flex items-center gap-3 px-3 py-2 mb-3 bg-black/20 rounded-[14px] border border-white/[0.02]">
-            <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] border border-primary/20">
+        <div className="relative z-10 p-4 border-t border-border/50 mt-auto bg-background/20">
+          <div className="flex items-center gap-3 px-3 py-2 mb-3 bg-foreground/[0.05] rounded-[14px] border border-border/30">
+            <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold shadow-[inset_0_1px_0_theme(colors.foreground/10%)] border border-primary/20">
               {user?.displayName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || '?'}
             </div>
             <div className="flex-1 min-w-0">
@@ -115,7 +115,7 @@ export default function DashboardLayout() {
         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.02] mix-blend-overlay pointer-events-none"></div>
         
         {/* Mobile Header */}
-        <header className="relative z-10 h-16 flex items-center justify-between px-4 sm:px-6 lg:hidden border-b border-white/[0.05] bg-card/50 backdrop-blur-md">
+        <header className="relative z-10 h-16 flex items-center justify-between px-4 sm:px-6 lg:hidden border-b border-border/50 bg-card/50 backdrop-blur-md">
           <div className="flex items-center gap-2 text-primary">
             <Shield className="w-5 h-5" />
             <span className="font-heading font-bold tracking-widest text-sm">VoiceGuard</span>
