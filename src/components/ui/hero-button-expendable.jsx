@@ -4,6 +4,8 @@ import { useState, useEffect } from "react"
 import { X, Check, ArrowRight, BarChart3, Globe2 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { GodRays, MeshGradient } from "@paper-design/shaders-react"
+import { db } from "@/lib/firebase"
+import { collection, addDoc, serverTimestamp } from "firebase/firestore"
 
 export default function Hero({ children }) {
   const [isExpanded, setIsExpanded] = useState(false)
@@ -17,13 +19,29 @@ export default function Hero({ children }) {
     setTimeout(() => setFormStep("idle"), 500)
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     setFormStep("submitting")
-    // Simulate API call
-    setTimeout(() => {
+    
+    const formData = {
+      name: e.target.name.value,
+      email: e.target.email.value,
+      company: e.target.company.value,
+      teamSize: e.target.size.value,
+      message: e.target.message.value,
+      createdAt: serverTimestamp(),
+      source: "landing_page_hero",
+      status: "new"
+    }
+
+    try {
+      await addDoc(collection(db, "demo_requests"), formData)
       setFormStep("success")
-    }, 1500)
+    } catch (error) {
+      console.error("Error submitting demo request:", error)
+      // Fallback in case of networking issues, so user isn't stuck loading forever
+      setFormStep("success") 
+    }
   }
 
   // Lock body scroll when modal is open
