@@ -7,7 +7,9 @@ import {
   Cpu, Languages, AlertTriangle, Activity,
   FileCode, Terminal, Webhook, ArrowRight,
 } from 'lucide-react';
-import { MetalButton, LiquidButton } from '@/components/ui/LiquidGlassButton';
+import { Button } from '@/components/ui/button';
+import Particles from '@/components/ui/demo-particles';
+import Hero from '@/components/ui/hero-button-expendable';
 import { Badge } from '@/components/ui/Badge';
 import AnimatedSection from '@/components/ui/AnimatedSection';
 import { AnimatedGroup } from '@/components/ui/AnimatedGroup';
@@ -143,168 +145,147 @@ export default function LandingPage() {
         {/* Radial vignette overlay */}
         <div aria-hidden className="absolute inset-0 -z-10 size-full [background:radial-gradient(125%_125%_at_50%_100%,transparent_0%,var(--background)_75%)]" />
 
-        <div className="relative mx-auto max-w-6xl px-6 lg:px-8">
-          <div className="text-center">
-            <AnimatedGroup variants={heroTransitionVariants}>
-              <div className="flex justify-center">
-                <Link
-                  to="/dashboard"
-                  className="group mx-auto flex w-fit items-center gap-4 rounded-full border border-border bg-card/80 p-1 pl-4 shadow-md shadow-foreground/5 transition-all duration-300 hover:border-border">
-                  <span className="text-[12px] font-medium text-muted-foreground">AI-Powered Voice Fraud Detection</span>
-                  <span className="block h-4 w-0.5 bg-border" />
-                  <div className="relative flex size-6 items-center justify-center overflow-hidden rounded-full bg-muted duration-500 group-hover:bg-primary/20">
-                    <ArrowRight className="size-3 text-primary transition-transform duration-300 group-hover:translate-x-0.5" />
-                  </div>
-                </Link>
-              </div>
+        <Hero>
+          <div className="relative mx-auto max-w-6xl px-6 lg:px-8 w-full z-20">
+            <div className="text-center">
+              <AnimatedGroup variants={heroTransitionVariants}>
+                <div className="flex justify-center">
+                  <Link
+                    to="/dashboard"
+                    className="group mx-auto flex w-fit items-center gap-4 rounded-full border border-border bg-card/80 p-1 pl-4 shadow-md shadow-foreground/5 transition-all duration-300 hover:border-border">
+                    <span className="text-[12px] font-medium text-muted-foreground">AI-Powered Voice Fraud Detection</span>
+                    <span className="block h-4 w-0.5 bg-border" />
+                    <div className="relative flex size-6 items-center justify-center overflow-hidden rounded-full bg-muted duration-500 group-hover:bg-primary/20">
+                      <ArrowRight className="size-3 text-primary transition-transform duration-300 group-hover:translate-x-0.5" />
+                    </div>
+                  </Link>
+                </div>
 
-              <h1 className="mt-8 text-balance text-center font-heading text-[42px] font-extrabold leading-[1.08] tracking-tight text-foreground sm:text-[56px] md:text-[68px] lg:mt-16 lg:text-[76px]">
-                Detect Deepfakes
-                <br />
-                <span className="text-gradient">Before They Strike</span>
-              </h1>
+                <h1 className="mt-8 text-balance text-center font-heading text-[42px] font-extrabold leading-[1.08] tracking-tight text-foreground sm:text-[56px] md:text-[68px] lg:mt-16 lg:text-[76px]">
+                  Detect Deepfakes
+                  <br />
+                  <span className="text-gradient">Before They Strike</span>
+                </h1>
 
-              <p className="mx-auto mt-8 max-w-xl text-balance text-center text-[15px] leading-relaxed text-muted-foreground sm:text-[17px]">
-                Real-time voice fraud detection API. Identify AI-generated
-                voices during live calls with{' '}
-                <span className="font-semibold text-primary">97%+ accuracy</span>{' '}
-                and <span className="font-semibold text-primary">&lt;200ms</span> latency.
-              </p>
-            </AnimatedGroup>
-
-            <AnimatedGroup
-              variants={{
-                container: {
-                  visible: {
-                    transition: {
-                      staggerChildren: 0.05,
-                      delayChildren: 0.75,
-                    },
-                  },
-                },
-                ...heroTransitionVariants,
-              }}
-              className="mt-12 flex flex-col items-center justify-center gap-2 md:flex-row">
-              <Link to="/dashboard">
-                <MetalButton variant="primary">
-                  Start Analyzing
-                </MetalButton>
-              </Link>
-              <a href="#features">
-                <LiquidButton size="lg">
-                  See How It Works
-                </LiquidButton>
-              </a>
-            </AnimatedGroup>
-
-            <AnimatedGroup
-              variants={{
-                container: {
-                  visible: {
-                    transition: {
-                      delayChildren: 1,
-                    },
-                  },
-                },
-                ...heroTransitionVariants,
-              }}
-              className="mt-5">
-              <p className="text-center text-[12px] text-muted-foreground/60">
-                No credit card required · 1,000 free API calls · Deploy in minutes
-              </p>
-            </AnimatedGroup>
+                <p className="mx-auto mt-8 max-w-xl text-balance text-center text-[15px] leading-relaxed text-muted-foreground sm:text-[17px]">
+                  Real-time voice fraud detection API. Identify AI-generated
+                  voices during live calls with{' '}
+                  <span className="font-semibold text-primary">97%+ accuracy</span>{' '}
+                  and <span className="font-semibold text-primary">&lt;200ms</span> latency.
+                </p>
+              </AnimatedGroup>
+            </div>
           </div>
+        </Hero>
 
-          {/* Product preview — bento-style cards */}
+        <div className="relative mx-auto max-w-6xl px-6 lg:px-8 w-full z-20 mt-8">
           <AnimatedGroup
             variants={{
               container: {
                 visible: {
                   transition: {
-                    staggerChildren: 0.05,
-                    delayChildren: 0.75,
+                    delayChildren: 1,
                   },
                 },
               },
               ...heroTransitionVariants,
-            }}>
-            <div className="relative mt-12 sm:mt-16 md:mt-20">
-              <div
-                aria-hidden
-                className="bg-gradient-to-b to-background absolute inset-0 z-10 from-transparent from-75%"
-              />
-              <div className="mx-auto max-w-4xl px-4">
-                <p className="mb-4 text-center font-mono text-[11px] font-medium uppercase tracking-[0.15em] text-muted-foreground/60">
-                  Product Preview
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-[1.2fr_1fr] gap-4">
-                  {/* Risk Score card — tall */}
-                  <div className="bento-item row-span-2">
-                    <div className="flex items-center justify-between mb-4">
-                      <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground/60">Risk Score</p>
-                      <div className="flex items-center gap-1.5">
-                        <span className="h-1.5 w-1.5 rounded-full bg-success-400 animate-pulse" />
-                        <span className="font-mono text-[10px] text-success-400/80">LIVE</span>
-                      </div>
-                    </div>
-                    <div className="flex items-end gap-2">
-                      <span className="font-heading text-6xl font-black text-danger-400">87</span>
-                      <span className="mb-2 font-mono text-[13px] text-danger-400/50">/ 100</span>
-                    </div>
-                    <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-muted">
-                      <div className="h-full w-[87%] rounded-full bg-gradient-to-r from-warning-400 to-danger-400" />
-                    </div>
-                    <div className="mt-6 grid grid-cols-2 gap-3">
-                      <div className="rounded-lg border border-border/60 bg-background/50 p-3">
-                        <p className="font-mono text-[9px] uppercase tracking-[0.15em] text-muted-foreground/50">Voice</p>
-                        <p className="mt-1 font-mono text-[13px] font-bold text-danger-400">AI_GEN</p>
-                      </div>
-                      <div className="rounded-lg border border-border/60 bg-background/50 p-3">
-                        <p className="font-mono text-[9px] uppercase tracking-[0.15em] text-muted-foreground/50">Confidence</p>
-                        <p className="mt-1 font-mono text-[13px] font-bold text-foreground/80">94.2%</p>
-                      </div>
+            }}
+            className="text-center">
+            <p className="text-[12px] text-muted-foreground/60">
+              No credit card required · 1,000 free API calls · Deploy in minutes
+            </p>
+          </AnimatedGroup>
+        </div>
+
+        {/* Product preview — bento-style cards */}
+        <AnimatedGroup
+          variants={{
+            container: {
+              visible: {
+                transition: {
+                  staggerChildren: 0.05,
+                  delayChildren: 0.75,
+                },
+              },
+            },
+            ...heroTransitionVariants,
+          }}>
+          <div className="relative mt-12 sm:mt-16 md:mt-20">
+            <div
+              aria-hidden
+              className="bg-gradient-to-b to-background absolute inset-0 z-10 from-transparent from-75%"
+            />
+            <div className="mx-auto max-w-4xl px-4">
+              <p className="mb-4 text-center font-mono text-[11px] font-medium uppercase tracking-[0.15em] text-muted-foreground/60">
+                Product Preview
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-[1.2fr_1fr] gap-4">
+                {/* Risk Score card — tall */}
+                <div className="bento-item row-span-2">
+                  <div className="flex items-center justify-between mb-4">
+                    <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground/60">Risk Score</p>
+                    <div className="flex items-center gap-1.5">
+                      <span className="h-1.5 w-1.5 rounded-full bg-success-400 animate-pulse" />
+                      <span className="font-mono text-[10px] text-success-400/80">LIVE</span>
                     </div>
                   </div>
-
-                  {/* Fraud Alert card */}
-                  <div className="bento-item" style={{ background: 'rgba(239,68,68,0.03)' }}>
-                    <div className="flex items-center gap-2 mb-3">
-                      <AlertTriangle size={14} className="text-danger-400" />
-                      <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-danger-400">Fraud Alert</span>
+                  <div className="flex items-end gap-2">
+                    <span className="font-heading text-6xl font-black text-danger-400">87</span>
+                    <span className="mb-2 font-mono text-[13px] text-danger-400/50">/ 100</span>
+                  </div>
+                  <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-muted">
+                    <div className="h-full w-[87%] rounded-full bg-gradient-to-r from-warning-400 to-danger-400" />
+                  </div>
+                  <div className="mt-6 grid grid-cols-2 gap-3">
+                    <div className="rounded-lg border border-border/60 bg-background/50 p-3">
+                      <p className="font-mono text-[9px] uppercase tracking-[0.15em] text-muted-foreground/50">Voice</p>
+                      <p className="mt-1 font-mono text-[13px] font-bold text-danger-400">AI_GEN</p>
                     </div>
-                    <p className="text-[13px] leading-relaxed text-muted-foreground">
-                      AI-generated voice detected with high-pressure tactics. Caller requesting sensitive credentials.
-                    </p>
-                    <div className="mt-3 flex items-center gap-2 rounded-lg bg-warning-500/[0.06] px-3 py-2">
-                      <Shield size={12} className="text-warning-400" />
-                      <span className="font-mono text-[11px] text-warning-400/80">
-                        Do not share OTP, PIN, or payment info.
-                      </span>
+                    <div className="rounded-lg border border-border/60 bg-background/50 p-3">
+                      <p className="font-mono text-[9px] uppercase tracking-[0.15em] text-muted-foreground/50">Confidence</p>
+                      <p className="mt-1 font-mono text-[13px] font-bold text-foreground/80">94.2%</p>
                     </div>
                   </div>
+                </div>
 
-                  {/* Session Info card */}
-                  <div className="bento-item">
-                    <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground/60 mb-3">Session</p>
-                    <p className="font-mono text-[14px] font-bold text-foreground/70">A3F8D1B6</p>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-medium text-primary">
-                        <Lock size={10} /> Privacy-first
-                      </span>
-                      <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-medium text-primary">
-                        <Globe size={10} /> English
-                      </span>
-                      <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-medium text-primary">
-                        <Activity size={10} /> Streaming
-                      </span>
-                    </div>
+                {/* Fraud Alert card */}
+                <div className="bento-item" style={{ background: 'rgba(239,68,68,0.03)' }}>
+                  <div className="flex items-center gap-2 mb-3">
+                    <AlertTriangle size={14} className="text-danger-400" />
+                    <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-danger-400">Fraud Alert</span>
+                  </div>
+                  <p className="text-[13px] leading-relaxed text-muted-foreground">
+                    AI-generated voice detected with high-pressure tactics. Caller requesting sensitive credentials.
+                  </p>
+                  <div className="mt-3 flex items-center gap-2 rounded-lg bg-warning-500/[0.06] px-3 py-2">
+                    <Shield size={12} className="text-warning-400" />
+                    <span className="font-mono text-[11px] text-warning-400/80">
+                      Do not share OTP, PIN, or payment info.
+                    </span>
+                  </div>
+                </div>
+
+                {/* Session Info card */}
+                <div className="bento-item">
+                  <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground/60 mb-3">Session</p>
+                  <p className="font-mono text-[14px] font-bold text-foreground/70">A3F8D1B6</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-medium text-primary">
+                      <Lock size={10} /> Privacy-first
+                    </span>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-medium text-primary">
+                      <Globe size={10} /> English
+                    </span>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-medium text-primary">
+                      <Activity size={10} /> Streaming
+                    </span>
                   </div>
                 </div>
               </div>
             </div>
-          </AnimatedGroup>
+          </div>
+        </AnimatedGroup>
 
-        </div>
       </section>
 
       <section className="relative border-y border-border/50 bg-card py-16">
@@ -350,14 +331,14 @@ export default function LandingPage() {
             </p>
             <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4 glass-backdrop">
               <Link to="/dashboard">
-                <MetalButton variant="primary">
+                <Particles>
                   Open Dashboard
-                </MetalButton>
+                </Particles>
               </Link>
               <Link to="/pricing">
-                <LiquidButton size="lg">
+                <Button variant="secondary" size="lg" className="rounded-full h-[60px] px-8 text-[15px] font-semibold">
                   View Pricing
-                </LiquidButton>
+                </Button>
               </Link>
             </div>
           </div>

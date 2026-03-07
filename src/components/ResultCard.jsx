@@ -1,5 +1,6 @@
 ﻿import { memo } from 'react';
 import { AlertTriangle, ShieldCheck, Cpu, RefreshCw } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
 
 const ResultCard = memo(function ResultCard({ result, loading, error, onRetry }) {
   if (loading) {
@@ -24,10 +25,10 @@ const ResultCard = memo(function ResultCard({ result, loading, error, onRetry })
         </div>
         <div className="result-error-text">{error}</div>
         {onRetry && (
-          <button onClick={onRetry} className="retry-button">
+          <Button variant="secondary" size="md" onClick={onRetry}>
             <RefreshCw size={14} aria-hidden="true" />
             Try Again
-          </button>
+          </Button>
         )}
       </div>
     );

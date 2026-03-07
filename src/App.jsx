@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import './index.css';
 import { Download, Shield } from 'lucide-react';
 
@@ -9,6 +9,8 @@ import RealtimeSessionPanel from './components/RealtimeSessionPanel';
 import DebugDrawer from './components/DebugDrawer';
 import { useToast } from './components/Toast';
 import useMicRecorder from './hooks/useMicRecorder';
+import { useAuth } from './contexts/AuthContext';
+import { saveAnalysisResult } from './lib/db';
 import {
   detectVoice,
   startRealtimeSession,
@@ -46,6 +48,7 @@ function mergeAlerts(existing, incoming) {
 }
 
 function App() {
+  const { user } = useAuth();
   const toast = useToast();
   const { startRecording, stopRecording, isRecording, error: micError } = useMicRecorder();
 
@@ -208,6 +211,19 @@ function App() {
       addLog(`LEGACY_DONE: ${data.classification} (${elapsed}s)`);
       scrollToResults();
       appendHistory({ id: Date.now(), fileName: file.name, language, mode: MODES.LEGACY, classification: data.classification, confidence: data.confidenceScore, time: new Date().toLocaleTimeString(), responseTime: elapsed });
+      
+      // Save to Firestore
+      if (user) {
+        saveAnalysisResult(user, {
+          summary: { 
+            final_call_label: data.classification, 
+            max_risk_score: data.confidenceScore * 100 
+          },
+          voice_probe: { fileName: file.name },
+          mode: MODES.LEGACY,
+          latest: { language }
+        }).catch(err => toast.error(err.message));
+      }
     } catch (err) {
       const msg = err?.message || 'Analysis failed.';
       setError(msg);
@@ -241,10 +257,22 @@ function App() {
     if (summary) {
       appendHistory({ id: Date.now(), fileName: file?.name || 'Live Mic', language, mode: MODES.REALTIME, classification: summary.final_call_label, confidence: Number(summary.max_risk_score || 0) / 100, time: new Date().toLocaleTimeString(), responseTime: elapsed });
       addLog(`RT_DONE: ${summary.final_call_label} (${elapsed}s)`);
+      
+      // Save to Firestore
+      if (user) {
+        const fetched = Array.isArray(alertsResult.value?.alerts) ? alertsResult.value.alerts : [];
+        saveAnalysisResult(user, {
+          summary: summary,
+          alerts: fetched,
+          mode: MODES.REALTIME,
+          latest: { language },
+          voice_probe: { fileName: file?.name || 'Live Audio Stream' }
+        }).catch(err => toast.error(err.message));
+      }
     } else {
       addLog(`RT_DONE: NO_SUMMARY (${elapsed}s)`);
     }
-  }, [addLog, language, file, scrollToResults, appendHistory]);  // --- Realtime file analysis ---
+  }, [addLog, language, file, scrollToResults, appendHistory, user, toast]);  // --- Realtime file analysis ---
   const handleRealtimeAnalyze = async () => {
     if (!file) {
       setRealtimeError('Please select an audio file first.');

@@ -2,15 +2,21 @@ import { lazy, Suspense } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import MarketingLayout from './layouts/MarketingLayout';
 import DashboardLayout from './layouts/DashboardLayout';
+import ProtectedRoute from './components/ProtectedRoute';
 
 /* ── Lazy-loaded pages ─────────────────────────────── */
 const LandingPage = lazy(() => import('./pages/LandingPage'));
 const PricingPage = lazy(() => import('./pages/PricingPage'));
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
-const DashboardPage = lazy(() => import('./pages/DashboardPage'));
+const DashboardOverview = lazy(() => import('./pages/dashboard/DashboardOverview'));
+const HistoryPage = lazy(() => import('./pages/dashboard/HistoryPage'));
+const SettingsPage = lazy(() => import('./pages/dashboard/SettingsPage'));
+const App = lazy(() => import('./App'));
 const DocsPage = lazy(() => import('./pages/DocsPage'));
 const ApiReferencePage = lazy(() => import('./pages/ApiReferencePage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
+const LoginPage = lazy(() => import('./pages/LoginPage'));
+const SignupPage = lazy(() => import('./pages/SignupPage'));
 
 /* ── Route-level loading fallback ──────────────────── */
 function PageLoader() {
@@ -52,13 +58,28 @@ export default function AppRouter() {
           <Route path="*" element={<NotFoundPage />} />
         </Route>
 
+        {/* Auth pages — no layout wrappers since they have custom full-screen designs */}
+        <Route path="login" element={<LoginPage />} />
+        <Route path="signup" element={<SignupPage />} />
+
         {/* Docs — standalone layout with own header */}
         <Route path="docs" element={<DocsPage />} />
-        <Route path="api-reference" element={<ApiReferencePage />} />
+        <Route path="api-reference" element={
+          <ProtectedRoute>
+            <ApiReferencePage />
+          </ProtectedRoute>
+        } />
 
         {/* Dashboard — own layout with compact nav */}
-        <Route path="dashboard" element={<DashboardLayout />}>
-          <Route index element={<DashboardPage />} />
+        <Route path="dashboard" element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }>
+          <Route index element={<DashboardOverview />} />
+          <Route path="scan" element={<App />} />
+          <Route path="history" element={<HistoryPage />} />
+          <Route path="settings" element={<SettingsPage />} />
         </Route>
       </Routes>
     </Suspense>

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Home, ArrowLeft, Ghost } from 'lucide-react';
-import { MetalButton } from '@/components/ui/LiquidGlassButton';
+import { Button } from '@/components/ui/button';
 
 export default function NotFoundPage() {
   return (
@@ -31,14 +31,16 @@ export default function NotFoundPage() {
 
         <div className="mt-8 flex items-center justify-center gap-3">
           <Link to="/">
-            <MetalButton variant="primary">
+            <Button variant="default" className="rounded-full shadow-md">
+              <ArrowLeft size={16} className="-ml-1 mr-2 opacity-70" />
               Back to Home
-            </MetalButton>
+            </Button>
           </Link>
           <Link to="/dashboard">
-            <MetalButton variant="default">
+            <Button variant="secondary" className="rounded-full">
+              <Home size={16} className="-ml-1 mr-2 opacity-70" />
               Open Dashboard
-            </MetalButton>
+            </Button>
           </Link>
         </div>
       </div>

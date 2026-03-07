@@ -3,14 +3,17 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Shield, Menu, X, Home, Tag, Layers } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { MetalButton } from '@/components/ui/LiquidGlassButton';
+import { Button } from '@/components/ui/button';
 import { ToggleTheme } from '@/components/ui/ToggleTheme';
+import { useAuth } from '@/contexts/AuthContext';
+import { LogOut, User } from 'lucide-react';
 
 export default function SiteNav() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const { user, signOut } = useAuth();
   const isDashboard = location.pathname.startsWith('/dashboard');
 
   useEffect(() => {
@@ -121,15 +124,37 @@ export default function SiteNav() {
           <div className="hidden md:block">
             <ToggleTheme />
           </div>
-          <Link to="/dashboard" className="hidden sm:block">
-            <MetalButton variant="primary">
-              Try Demo
-            </MetalButton>
-          </Link>
-          <Link to="/dashboard" className="sm:hidden">
-            <MetalButton variant="primary">
-              Demo
-            </MetalButton>
+          
+          {user ? (
+            <div className="hidden sm:flex items-center gap-2">
+              <Button variant="ghost" size="icon" onClick={() => signOut()} className="rounded-full rounded-md" title="Sign out">
+                <LogOut className="h-4 w-4 text-muted-foreground" />
+              </Button>
+              <Link to="/dashboard">
+                <Button variant="default" className="rounded-full px-5 font-semibold shadow-md border border-primary/20">
+                  Dashboard
+                </Button>
+              </Link>
+            </div>
+          ) : (
+            <div className="hidden sm:flex items-center gap-2">
+              <Link to="/login">
+                <Button variant="ghost" className="rounded-full px-4 font-medium text-muted-foreground hover:text-foreground">
+                  Sign In
+                </Button>
+              </Link>
+              <Link to="/signup">
+                <Button variant="default" className="rounded-full px-5 font-semibold shadow-md border border-primary/20">
+                  Get Started
+                </Button>
+              </Link>
+            </div>
+          )}
+
+          <Link to={user ? "/dashboard" : "/login"} className="sm:hidden">
+            <Button variant="default" className="rounded-full px-4 font-semibold shadow-md">
+              {user ? "Dashboard" : "Sign In"}
+            </Button>
           </Link>
 
           <button

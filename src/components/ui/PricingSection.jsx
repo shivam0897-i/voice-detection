@@ -4,7 +4,8 @@ import confetti from 'canvas-confetti';
 import { Link } from 'react-router-dom';
 import { Check, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { MetalButton } from '@/components/ui/LiquidGlassButton';
+import { Button } from '@/components/ui/button';
+import Particles from '@/components/ui/demo-particles';
 
 const PricingContext = createContext({
     isMonthly: true,
@@ -246,11 +247,17 @@ function PricingCard({ plan, index }) {
                     ))}
                 </ul>
 
-                <div className="mt-auto pt-8">
-                    <Link to={plan.href}>
-                        <MetalButton variant={plan.isPopular ? 'primary' : 'default'}>
-                            {plan.buttonText}
-                        </MetalButton>
+                <div className="mt-auto pt-8 flex justify-center w-full">
+                    <Link to={plan.href} className="w-full flex justify-center cursor-pointer">
+                        {plan.isPopular ? (
+                            <Particles className="w-[85%]">
+                                {plan.buttonText}
+                            </Particles>
+                        ) : (
+                            <Button variant="outline" className="w-full h-[50px] rounded-full text-foreground/80 hover:bg-accent">
+                                {plan.buttonText}
+                            </Button>
+                        )}
                     </Link>
                 </div>
             </div>

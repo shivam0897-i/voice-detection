@@ -1,4 +1,4 @@
-﻿import { StrictMode } from 'react'
+import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
@@ -9,6 +9,7 @@ import AppRouter from './router'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
 import { ToastProvider } from './components/Toast.jsx'
 import { ThemeProvider } from './components/ui/ThemeProvider'
+import { AuthProvider } from './contexts/AuthContext'
 
 /** Scroll to top on route change, or to hash target if present */
 function ScrollToTop() {
@@ -67,10 +68,12 @@ createRoot(document.getElementById('root')).render(
     <ErrorBoundary>
       <ThemeProvider defaultTheme="dark">
         <ToastProvider>
-          <BrowserRouter>
-            <ScrollToTop />
-            <AppRouter />
-          </BrowserRouter>
+          <AuthProvider>
+            <BrowserRouter>
+              <ScrollToTop />
+              <AppRouter />
+            </BrowserRouter>
+          </AuthProvider>
           <Analytics />
         </ToastProvider>
       </ThemeProvider>

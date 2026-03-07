@@ -2,6 +2,8 @@ import { Mic, FileAudio, MicOff, Zap, Square } from 'lucide-react';
 import DragDropZone from './DragDropZone';
 import AudioPlayer from './AudioPlayer';
 import LanguageSelector from './LanguageSelector';
+import { Button } from '@/components/ui/Button';
+import { cn } from '@/lib/utils';
 
 const InputControls = ({
   mode,
@@ -35,26 +37,28 @@ const InputControls = ({
         <div className="card">
           <span className="card-label">Input Source</span>
           <div className="input-toggle">
-            <button
-              type="button"
+            <Button
+              variant={inputSource === 'mic' ? 'primary' : 'ghost'}
+              size="md"
               onClick={() => onInputSourceChange('mic')}
               disabled={loading}
-              className={`input-toggle-btn ${inputSource === 'mic' ? 'active' : ''}`}
               aria-pressed={inputSource === 'mic'}
+              className="flex-1"
             >
               <Mic size={15} aria-hidden="true" />
               Microphone
-            </button>
-            <button
-              type="button"
+            </Button>
+            <Button
+              variant={inputSource === 'file' ? 'primary' : 'ghost'}
+              size="md"
               onClick={() => onInputSourceChange('file')}
               disabled={loading}
-              className={`input-toggle-btn ${inputSource === 'file' ? 'active' : ''}`}
               aria-pressed={inputSource === 'file'}
+              className="flex-1"
             >
               <FileAudio size={15} aria-hidden="true" />
               File Upload
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -70,14 +74,16 @@ const InputControls = ({
           )}
 
           {!isRecording && !loading && (
-            <button
+            <Button
+              variant="primary"
+              size="lg"
               onClick={onAnalyze}
               aria-label="Start live mic recording and analysis"
-              className="analyze-button"
+              className="w-full"
             >
               <Mic size={15} aria-hidden="true" />
               Start Live Analysis
-            </button>
+            </Button>
           )}
 
           {isRecording && (
@@ -86,15 +92,16 @@ const InputControls = ({
                 <span className="mic-pulse" />
                 Recording — {chunkProgress.current} chunks sent
               </div>
-              <button
-                type="button"
-                className="stop-button"
+              <Button
+                variant="danger"
+                size="lg"
                 onClick={onStopMic}
                 aria-label="Stop mic recording and finalize session"
+                className="w-full"
               >
                 <Square size={15} aria-hidden="true" />
                 Stop Recording
-              </button>
+              </Button>
             </>
           )}
         </div>
@@ -110,27 +117,30 @@ const InputControls = ({
 
       {/* Analyze / Stop buttons */}
       {!isMicMode && file && !loading && (
-        <button
+        <Button
+          variant="primary"
+          size="lg"
           onClick={onAnalyze}
           aria-label={isRealtime ? 'Start realtime session analysis' : 'Analyze audio file (Ctrl+Enter)'}
-          className="analyze-button"
+          className="w-full"
         >
           <Zap size={15} aria-hidden="true" />
           {isRealtime ? 'Start Realtime Session' : 'Analyze Audio'}
-          <span className="shortcut-hint">Ctrl+Enter</span>
-        </button>
+          <span className="text-xs opacity-60 ml-2">Ctrl+Enter</span>
+        </Button>
       )}
 
       {loading && isRealtime && !isMicMode && sessionStatus === 'streaming' && (
-        <button
-          type="button"
-          className="stop-button"
+        <Button
+          variant="danger"
+          size="lg"
           onClick={onStopRealtime}
           aria-label="Stop realtime session after current chunk"
+          className="w-full"
         >
           <Square size={15} aria-hidden="true" />
           Stop Session
-        </button>
+        </Button>
       )}
     </div>
   );
